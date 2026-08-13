@@ -1,0 +1,48 @@
+# openspec/config.yaml
+schema: spec-driven
+
+context: |
+  Product: Pit Wall - setup manager web para sim racing (iRacing, GT3 + Porsche Cup).
+  Source of truth: PRD.md v0.3 (repo root). Repo fresh: git initialized, no code yet.
+  Stack (planned, NOT scaffolded): Angular standalone + signals + zoneless, Tailwind CSS 4,
+  Zod 4, TypeScript strict, Supabase (Postgres + Auth + RLS), Playwright E2E.
+  Hosting: Vercel/Netlify + Supabase Cloud. Persistence: hybrid (openspec/ + Engram).
+  First change: Fase 0 - .sto parser (blocking, priority #1). Validation: >=5 real .sto files
+  (GT3 + Porsche Cup) before any UI. RLS from day 1. Export .sto nativo (portability).
+
+testing:
+  strict_tdd: true
+  runner: playwright
+  test_command: "npx playwright test"   # planned; lock when base project is scaffolded
+  unit_command: "ng test"               # planned (Angular CLI / Vitest)
+  coverage: false                        # not measurable until scaffold
+  note: "TDD estricto declarado en PRD v0.3; runner aun no instalado (sin package.json)"
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+    - Fase 0 parser: must reference evidence plan (real .sto files, >=5 autos)
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+    - Parser specs MUST be derived from PRD acceptance criteria (no data loss, >=5 files)
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+    - Validate parsed .sto values with Zod 4 schemas (single source of truth per auto)
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+    - Scaffold base project (Angular + Tailwind 4 + Playwright + strict TS) before UI tasks
+  apply:
+    guidelines:
+      - Follow existing code patterns
+      - Strict TypeScript everywhere (no any, no @ts-ignore)
+    tdd: true
+    test_command: "npx playwright test"
+  verify:
+    test_command: "npx playwright test"
+    build_command: "ng build"
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas
