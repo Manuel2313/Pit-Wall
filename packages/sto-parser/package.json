@@ -1,0 +1,10 @@
+{
+  "name": "@pit-wall/sto-parser",
+  "version": "0.0.0",
+  "description": "Lossless parser/serializer for iRacing .sto setup files: container layer, notes trailer, typed CarSetup overlay.",
+  "private": false,
+  "type": "module",
+  "dependencies": {
+    "zod": "^4.4.3"
+  }
+}

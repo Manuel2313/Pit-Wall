@@ -1,0 +1,20 @@
+{
+  "name": "pit-wall",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Pit Wall - setup manager for iRacing sim racing. Fase 0: isolated .sto parser monorepo.",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "test:sto-parser": "vitest run packages/sto-parser",
+    "test:sto-validation-oracle": "vitest run packages/sto-validation-oracle"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "typescript": "^7.0.2",
+    "vitest": "^3.2.7"
+  }
+}

@@ -1,2 +1,7 @@
 # Local agent cache (skill index). Never commit.
 .atl/
+
+# Dependencies, build output, coverage
+node_modules/
+dist/
+coverage/

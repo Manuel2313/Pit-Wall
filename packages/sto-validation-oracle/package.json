@@ -1,0 +1,7 @@
+{
+  "name": "@pit-wall/sto-validation-oracle",
+  "version": "0.0.0",
+  "description": "Dev-only, read-only validation tooling: fixture registry, byte-diff RE harness, HTML oracle, acceptance gate.",
+  "private": true,
+  "type": "module"
+}
