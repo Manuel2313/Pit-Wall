@@ -4,6 +4,14 @@
   "description": "Lossless parser/serializer for iRacing .sto setup files: container layer, notes trailer, typed CarSetup overlay.",
   "private": false,
   "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
   "dependencies": {
     "zod": "^4.4.3"
   }

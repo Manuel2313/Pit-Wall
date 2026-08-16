@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { parseSto } from "@pit-wall/sto-parser";
 import { describe, expect, it } from "vitest";
 import { FIXTURES_DIR, distinctCars, listFixtures } from "../src/fixtures";
 
@@ -22,6 +23,15 @@ describe("fixture registry (P1 smoke)", () => {
     expect(ferrari.every((fixture) => fixture.role === "diff-pair")).toBe(true);
   });
 
+  it("marks the three remaining cars as oracle sources (D5 roles)", () => {
+    const oracleSources = listFixtures().filter((fixture) => fixture.role === "oracle-source");
+    expect(oracleSources.map((fixture) => fixture.carKey).sort()).toEqual([
+      "Mercedes",
+      "Mustang",
+      "Porsche Cup",
+    ]);
+  });
+
   it("resolves every registered file on disk with its pinned size", () => {
     for (const fixture of listFixtures()) {
       expect(statSync(join(FIXTURES_DIR, fixture.file)).size).toBe(fixture.sizeBytes);
@@ -39,5 +49,19 @@ describe("fixture registry (P1 smoke)", () => {
     const fixtures = listFixtures();
     expect(Object.isFrozen(fixtures)).toBe(true);
     expect(fixtures.every((fixture) => Object.isFrozen(fixture))).toBe(true);
+  });
+
+  it("leaves fixture bytes unchanged after a parser validation run (hash before/after)", () => {
+    for (const fixture of listFixtures()) {
+      const path = join(FIXTURES_DIR, fixture.file);
+      const before = sha256Hex(readFileSync(path));
+      const parsed = parseSto(readFileSync(path));
+      expect(parsed.ok).toBe(true);
+      if (!parsed.ok) continue;
+      // Cross-check the registry size pin against the parsed layout: 8-byte prefix + fs payload + trailer.
+      expect(parsed.document.header.fs).toBe(fixture.sizeBytes - 8 - parsed.document.trailer.length);
+      const after = sha256Hex(readFileSync(path));
+      expect(after).toBe(before);
+    }
   });
 });
