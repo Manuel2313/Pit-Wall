@@ -21,20 +21,20 @@ Chain strategy: pending
 
 ## Phase 1: Foundation
 
-- [ ] 1.1 Root package.json: private, workspaces packages/*, scripts.
-- [ ] 1.2 Scaffold packages/sto-parser: package.json, strict tsconfig, vitest.config.ts.
-- [ ] 1.3 Scaffold packages/sto-validation-oracle: package.json (private), tsconfig, vitest.config.ts.
-- [ ] 1.4 Commit IRacingSetups/* as read-only fixtures (setup task).
-- [ ] 1.5 Install vitest + zod@4; smoke test green; config.yaml untouched.
-- [ ] 1.6 Root .gitignore: node_modules, dist, coverage.
+- [x] 1.1 Root package.json: private, workspaces packages/*, scripts.
+- [x] 1.2 Scaffold packages/sto-parser: package.json, strict tsconfig, vitest.config.ts.
+- [x] 1.3 Scaffold packages/sto-validation-oracle: package.json (private), tsconfig, vitest.config.ts.
+- [x] 1.4 Commit IRacingSetups/* as read-only fixtures (setup task).
+- [x] 1.5 Install vitest + zod@4; smoke test green; config.yaml untouched.
+- [x] 1.6 Root .gitignore: node_modules, dist, coverage.
 
 ## Phase 2: Container layer
 
-- [ ] 2.1 [RED->GREEN] errors.test.ts/errors.ts: kinds invalid-magic|size-mismatch|truncated|trailer-invalid + offset (D4).
-- [ ] 2.2 [RED->GREEN] header.test.ts/header.ts: magic != 0x0003 -> invalid-magic; fs != len-16 -> size-mismatch (Invalid magic; D2).
-- [ ] 2.3 [RED->GREEN] notes.test.ts/notes.ts: V1 trailer golden decode/encode inverse (D6); bad -> trailer-invalid (Notes).
-- [ ] 2.4 [RED->GREEN] container.test.ts/container.ts: parseSto Ferrari V1 -> sections; input unmutated; truncated (Real Ferrari).
-- [ ] 2.5 GREEN index.ts: export parseSto/serializeSto + types.
+- [x] 2.1 [RED->GREEN] errors.test.ts/errors.ts: kinds invalid-magic|size-mismatch|truncated|trailer-invalid + offset (D4).
+- [x] 2.2 [RED->GREEN] header.test.ts/header.ts: magic != 0x0003 -> invalid-magic; fs != len-16 -> size-mismatch (Invalid magic; D2).
+- [x] 2.3 [RED->GREEN] notes.test.ts/notes.ts: V1 trailer golden decode/encode inverse (D6); bad -> trailer-invalid (Notes).
+- [x] 2.4 [RED->GREEN] container.test.ts/container.ts: parseSto Ferrari V1 -> sections; input unmutated; truncated (Real Ferrari).
+- [x] 2.5 GREEN index.ts: export parseSto/serializeSto + types.
 
 ## Phase 3: Round-trip/registry
 
