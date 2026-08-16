@@ -15,3 +15,12 @@ export {
   type StoDocument,
   type StoParseResult,
 } from "./container";
+export {
+  parseFerrariSetupHtml,
+  type HtmlFieldPair,
+} from "./html-overlay";
+export {
+  carSetupSchema,
+  safeParseCarSetup,
+  type CarSetup,
+} from "./overlay";
