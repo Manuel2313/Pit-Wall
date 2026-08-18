@@ -29,7 +29,7 @@ Parse followed by serialize MUST reproduce the original file byte-for-byte (iden
 
 #### Scenario: All fixtures round-trip
 
-- GIVEN any of the 5 registered fixtures
+- GIVEN any of the 4 registered fixtures
 - WHEN parsed and re-serialized without modification
 - THEN the output bytes equal the input bytes exactly
 

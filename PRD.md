@@ -1,6 +1,6 @@
 # PRD — Pit Wall
 **Setup manager para sim racing (foco inicial: iRacing)**
-**Versión:** v0.3 — Alcance ajustado: Porsche Cup reemplaza GT4
+**Versión:** v0.4 — Criterio de validación: ≥4 autos reales (GT3 + Porsche Cup)
 **Autor:** Manuel
 
 ---
@@ -83,7 +83,7 @@ Relevamiento de la competencia:
 
 ### Épica: Parser de setups (bloqueante, se construye primero)
 - Como equipo de desarrollo, necesitamos un parser confiable de archivos `.sto` de iRacing antes de construir cualquier otra funcionalidad.
-  - *Criterio de aceptación:* dado un archivo `.sto` real de un auto GT3 o de la Porsche Cup, el parser extrae todos los valores estructurados (aero, suspensión, diferencial, frenos, etc.) sin pérdida de datos, validado contra al menos 5 archivos reales de distintos autos.
+  - *Criterio de aceptación:* dado un archivo `.sto` real de un auto GT3 o de la Porsche Cup, el parser extrae todos los valores estructurados (aero, suspensión, diferencial, frenos, etc.) sin pérdida de datos, validado contra al menos 4 archivos reales de distintos autos.
 
 ### Épica: Gestión de setups
 - Como piloto, quiero cargar un setup subiendo el archivo `.sto`, para no tipear cada valor a mano.
@@ -149,7 +149,7 @@ Tu entorno de agentes (OpenCode + `gentle-ai`, con workflow de Spec-Driven Devel
 
 ## 10. Roadmap por fases
 
-0. **Fase 0 — Parser (bloqueante):** validar el parser de `.sto` contra archivos reales de al menos 5 autos (GT3 y Porsche Cup) antes de tocar UI.
+0. **Fase 0 — Parser (bloqueante):** validar el parser de `.sto` contra archivos reales de al menos 4 autos (GT3 y Porsche Cup) antes de tocar UI.
 1. **Fase 1 — MVP:** todo lo listado en la sección 5, sobre iRacing GT3/GT4 únicamente.
 2. **Fase 2:** companion app o extensión para instalación automática del setup (resuelve la limitación de que una web app no puede escribir directo al sistema de archivos); expansión a más categorías de iRacing.
 3. **Fase 3:** multi-sim (Le Mans Ultimate, Assetto Corsa); telemetría en vivo.
@@ -167,7 +167,7 @@ Tu entorno de agentes (OpenCode + `gentle-ai`, con workflow de Spec-Driven Devel
 
 ## 12. Próximos pasos sugeridos
 
-1. Conseguir 5+ archivos `.sto` reales (distintos autos GT3 y al menos uno de la Porsche Cup) y prototipar el parser de forma aislada, sin UI.
+1. Conseguir 4+ archivos `.sto` reales (distintos autos GT3 y al menos uno de la Porsche Cup) y prototipar el parser de forma aislada, sin UI.
 2. Una vez validado el parser, definir el modelo de datos exacto por auto (los campos varían entre GT3 y GT4).
 3. Levantar el proyecto base: Angular + Supabase + TDD configurado desde el primer commit.
 4. Primer flujo end-to-end: login (Discord/email) → importar setup vía parser → ver historial.

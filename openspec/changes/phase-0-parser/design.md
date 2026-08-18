@@ -2,7 +2,7 @@
 
 ## Technical Approach
 
-Container-first (proposal, exploration rec. 1+2). Two workspace packages: public `@pit-wall/sto-parser` (pure TS, Zod 4, byte-identical round-trip) and dev-only private `@pit-wall/sto-validation-oracle` (registry, byte-diff RE harness, HTML oracle, ≥5-car gate). The typed `CarSetup` overlay is a **read-only Zod projection** over the raw payload; `serializeSto` always emits raw bytes, so byte-identity holds even when the overlay is absent or fails. First slice: container + notes + round-trip + registry; overlay and RE deferred.
+Container-first (proposal, exploration rec. 1+2). Two workspace packages: public `@pit-wall/sto-parser` (pure TS, Zod 4, byte-identical round-trip) and dev-only private `@pit-wall/sto-validation-oracle` (registry, byte-diff RE harness, HTML oracle, ≥4-car gate). The typed `CarSetup` overlay is a **read-only Zod projection** over the raw payload; `serializeSto` always emits raw bytes, so byte-identity holds even when the overlay is absent or fails. First slice: container + notes + round-trip + registry; overlay and RE deferred.
 
 ## Architecture Decisions
 
@@ -82,7 +82,7 @@ function serializeSto(doc: StoDocument): Uint8Array;
 | Notes | Decode golden; encode inverse; round-trip | V1 trailer bytes |
 | Round-trip | SHA-256 equality per fixture; V1 vs V2 stay distinct | Parameterized over registry |
 | Oracle | HTML field-for-field vs overlay; mismatch report | Slice 2 (`fixed_ferrariGT3296.htm`) |
-| Gate | Distinct-car count; unmet (4) and met (≥5) reporting | Registry-driven |
+| Gate | Distinct-car count; unmet (<4) and met (≥4) reporting | Registry-driven |
 
 ## Threat Matrix
 
@@ -95,7 +95,7 @@ No migration. Additive; rollback = delete `packages/`.
 ## Open Questions
 
 - Trailer boundary scan rule: pinned by RED golden tests in apply — non-blocking.
-- Gate needs ≥1 additional GT3 `.sto` from user (external).
+- Resolved 2026-08-18 (maintainer decision): acceptance criterion is ≥4 distinct real cars (Ferrari, Mustang, Mercedes GT3 + Porsche Cup) — no additional GT3 `.sto` from the user is required (buying a 5th car is out of plan).
 
 ## First Slice (feeds sdd-tasks)
 

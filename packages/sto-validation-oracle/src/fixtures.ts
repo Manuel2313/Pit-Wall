@@ -17,7 +17,7 @@ export interface StoFixture {
   /** File name inside the read-only IRacingSetups/ directory. */
   file: string;
   car: FixtureCar;
-  /** Stable distinct-car label used by the acceptance gate (PRD: >=5 distinct cars). */
+  /** Stable distinct-car label used by the acceptance gate (PRD v0.4: >=4 distinct cars). */
   carKey: string;
   /** Track inferred from the file name; null when the name carries no track. */
   track: string | null;

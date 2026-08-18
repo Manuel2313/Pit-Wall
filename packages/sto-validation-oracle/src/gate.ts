@@ -1,7 +1,7 @@
 import { FIXTURES, type StoFixture } from "./fixtures";
 
-/** PRD §6 acceptance / §10 fase 0: the suite must not report green below 5 distinct cars. */
-export const GATE_MIN_CARS = 5;
+/** PRD §6 acceptance / §10 fase 0: the suite must not report green below 4 distinct cars. */
+export const GATE_MIN_CARS = 4;
 
 export interface GateResult {
   /** True only when at least GATE_MIN_CARS distinct cars are registered. */

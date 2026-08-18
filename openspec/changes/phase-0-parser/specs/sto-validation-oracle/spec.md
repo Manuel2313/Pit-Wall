@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Validation tooling that proves the `sto-parser` against real files before any UI (PRD §6/§10 gate: ≥5 distinct cars): read-only fixture registry, byte-diff reverse-engineering harness, and garage HTML export cross-mapping oracle. Strict TDD: every capability is validated in isolation with Vitest on real fixtures.
+Validation tooling that proves the `sto-parser` against real files before any UI (PRD §6/§10 gate: ≥4 distinct cars): read-only fixture registry, byte-diff reverse-engineering harness, and garage HTML export cross-mapping oracle. Strict TDD: every capability is validated in isolation with Vitest on real fixtures.
 
 ## Requirements
 
@@ -64,18 +64,18 @@ The suite MUST parse the garage HTML export (`IRacingSetups/fixed_ferrariGT3296.
 - WHEN the oracle check runs
 - THEN the mismatch is reported with parameter name and both values
 
-### Requirement: Acceptance gate ≥5 cars
+### Requirement: Acceptance gate ≥4 cars
 
-The suite MUST NOT report green until validated on ≥5 distinct cars (PRD §6 acceptance, §10 fase 0). The gate MUST report the current distinct-car count.
+The suite MUST NOT report green until validated on ≥4 distinct cars (PRD §6 acceptance, §10 fase 0). The gate MUST report the current distinct-car count.
 
 #### Scenario: Gate unmet
 
-- GIVEN only 4 distinct cars registered
+- GIVEN fewer than 4 distinct cars registered (e.g. 3)
 - WHEN the validation gate runs
 - THEN it reports the gate as unmet with the count of missing cars
 
 #### Scenario: Gate met
 
-- GIVEN ≥5 distinct cars registered and green on all fixtures
+- GIVEN ≥4 distinct cars registered and green on all fixtures
 - WHEN the validation gate runs
 - THEN it reports the gate as met
