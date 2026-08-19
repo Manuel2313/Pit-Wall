@@ -1,6 +1,6 @@
 # PRD — Pit Wall
 **Setup manager para sim racing (foco inicial: iRacing)**
-**Versión:** v0.4 — Criterio de validación: ≥4 autos reales (GT3 + Porsche Cup)
+**Versión:** v0.5 — Criterio de validación: ≥4 autos reales (GT3 + Porsche Cup); Fase 1 con backend propio
 **Autor:** Manuel
 
 ---
@@ -56,7 +56,7 @@ Relevamiento de la competencia:
 ### Dentro del alcance
 - **Parser de archivos `.sto` de iRacing** (prioridad #1, se construye y valida antes que cualquier pantalla).
 - Login con **Discord OAuth** + email/contraseña como alternativa.
-- Carga de setups: importando el archivo `.sto` nativo (parseado automáticamente) o formulario manual como fallback.
+- Carga de setups: importando el archivo `.sto` nativo (parseado en metadatos automáticamente; valores tipados vía export HTML del garage o carga manual) o formulario manual como fallback.
 - Organización por auto (GT3/Porsche Cup) → pista → condición (quali/carrera/lluvia/etc.).
 - Historial de versiones con diff visual entre dos versiones cualquiera.
 - Bitácora de feedback: **texto libre + delta de vuelta**, asociada a cada versión. Sin campos estructurados por parámetro — se mantiene simple a propósito, sin diseñar para extensiones futuras.
@@ -79,7 +79,7 @@ Relevamiento de la competencia:
 
 ### Épica: Cuenta y acceso
 - Como piloto, quiero loguearme con Discord o con email/contraseña, para acceder a mis setups desde cualquier PC.
-  - *Criterio de aceptación:* login funcional con ambos métodos vía Supabase Auth; sesión persistente; recuperación de contraseña para el método email.
+  - *Criterio de aceptación:* login funcional con ambos métodos, con autenticación propia del backend (Discord OAuth queda como work unit posterior; email/contraseña es el primero); sesión persistente; recuperación de contraseña para el método email.
 
 ### Épica: Parser de setups (bloqueante, se construye primero)
 - Como equipo de desarrollo, necesitamos un parser confiable de archivos `.sto` de iRacing antes de construir cualquier otra funcionalidad.
@@ -87,7 +87,7 @@ Relevamiento de la competencia:
 
 ### Épica: Gestión de setups
 - Como piloto, quiero cargar un setup subiendo el archivo `.sto`, para no tipear cada valor a mano.
-  - *Criterio de aceptación:* al subir el archivo, se muestran los valores parseados para confirmar antes de guardar.
+  - *Criterio de aceptación:* al subir el archivo se muestran los METADATOS (auto, pista, categoría, notas) para confirmar antes de guardar; los valores tipados se obtienen del export HTML del garage (opcional) o por entrada manual (fallback).
 - Como piloto, quiero cargar un setup manualmente si no tengo el archivo a mano (fallback).
 - Como piloto, quiero organizar mis setups por auto (GT3/Porsche Cup), pista y condición.
 
@@ -130,9 +130,9 @@ Tu entorno de agentes (OpenCode + `gentle-ai`, con workflow de Spec-Driven Devel
 | Estilos | **Tailwind CSS 4** | Skill curada `tailwind-4` |
 | Validación de datos | **Zod 4** | Skill curada `zod-4`; clave para validar los datos parseados del `.sto` |
 | Lenguaje | **TypeScript estricto** (todo el proyecto) | Skill curada `typescript` |
-| Backend / datos / auth | **Supabase** (Postgres + Auth + Storage + Row Level Security) | Sin skill curada propia, pero minimiza infraestructura a mantener; RLS resuelve el aislamiento por usuario desde el día 1, con margen para crecer a SaaS real |
+| Backend / datos / auth | **NestJS + TypeScript + PostgreSQL** | Backend propio: auth, seguridad por usuario y storage implementados in-house, con tests; elegido también como objetivo de aprendizaje |
 | Testing | **Playwright** (E2E) + TDD estricto desde el día 1 | Skill curada `playwright`; `gentle-ai` activa Strict TDD Mode vía `/sdd-init`; encaja con tu propia metodología de "un cambio por vez + validación" |
-| Hosting | Vercel/Netlify (frontend) + Supabase Cloud (backend) | Deploy simple, sin servidores propios |
+| Hosting | Vercel/Netlify (frontend) | Deploy simple, sin servidores propios; el backend propio se deploya según se decida en diseño |
 
 **Convención de repo:** `PRD.md` (este documento) en la raíz del repo, siguiendo el mismo patrón que usa `gentle-ai` internamente, para que el orquestador SDD lo tome como fuente de verdad y vaya generando specs por feature a medida que se ataca cada pieza.
 
@@ -140,7 +140,7 @@ Tu entorno de agentes (OpenCode + `gentle-ai`, con workflow de Spec-Driven Devel
 
 ## 9. Consideraciones no funcionales
 
-- **Multi-tenancy y seguridad:** Row Level Security de Supabase desde el día uno — cada usuario accede solo a sus propios setups.
+- **Multi-tenancy y seguridad:** aislamiento por usuario implementado en el backend propio desde el día uno (reglas de seguridad por usuario, equivalentes a RLS, verificadas con tests) — cada usuario accede solo a sus propios setups.
 - **Escalabilidad:** Postgres administrado soporta crecimiento sin cambios de arquitectura en el corto/mediano plazo.
 - **Portabilidad de datos:** exportación en formato `.sto` nativo, el usuario nunca queda atado a la plataforma.
 - **Calidad:** TDD estricto — cada feature se desarrolla con tests antes o junto con la implementación, apoyado por el workflow SDD del entorno de agentes.
@@ -150,7 +150,7 @@ Tu entorno de agentes (OpenCode + `gentle-ai`, con workflow de Spec-Driven Devel
 ## 10. Roadmap por fases
 
 0. **Fase 0 — Parser (bloqueante):** validar el parser de `.sto` contra archivos reales de al menos 4 autos (GT3 y Porsche Cup) antes de tocar UI.
-1. **Fase 1 — MVP:** todo lo listado en la sección 5, sobre iRacing GT3/GT4 únicamente.
+1. **Fase 1 — MVP:** todo lo listado en la sección 5, sobre iRacing GT3 + Porsche Cup únicamente.
 2. **Fase 2:** companion app o extensión para instalación automática del setup (resuelve la limitación de que una web app no puede escribir directo al sistema de archivos); expansión a más categorías de iRacing.
 3. **Fase 3:** multi-sim (Le Mans Ultimate, Assetto Corsa); telemetría en vivo.
 4. **Fase 4 — Producto/SaaS:** modelo de monetización, funciones de equipo/liga.
@@ -168,6 +168,6 @@ Tu entorno de agentes (OpenCode + `gentle-ai`, con workflow de Spec-Driven Devel
 ## 12. Próximos pasos sugeridos
 
 1. Conseguir 4+ archivos `.sto` reales (distintos autos GT3 y al menos uno de la Porsche Cup) y prototipar el parser de forma aislada, sin UI.
-2. Una vez validado el parser, definir el modelo de datos exacto por auto (los campos varían entre GT3 y GT4).
-3. Levantar el proyecto base: Angular + Supabase + TDD configurado desde el primer commit.
+2. Una vez validado el parser, definir el modelo de datos exacto por auto (los campos varían entre autos GT3 y la Porsche Cup).
+3. Levantar el proyecto base: Angular + backend propio (NestJS + PostgreSQL) + TDD configurado desde el primer commit.
 4. Primer flujo end-to-end: login (Discord/email) → importar setup vía parser → ver historial.

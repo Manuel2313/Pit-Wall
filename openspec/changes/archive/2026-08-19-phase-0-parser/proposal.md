@@ -1,5 +1,7 @@
 # Proposal: Phase 0 — iRacing `.sto` Parser (isolated)
 
+> **Audit note (2026-08-19):** the historical success-criteria reference to ">=5" was superseded by PRD v0.4 (>=4 distinct real cars, decision 2026-08-18) and PRD v0.5 (own backend for Fase 1); archived as-is for audit trail, not updated.
+
 ## Intent
 
 Parse iRacing's undocumented binary `.sto` setups with zero data loss, proven on real files before any UI — all downstream features depend on it. Ships only the isolated parser library (pure TS + Vitest + Zod 4); no UI, no backend.
