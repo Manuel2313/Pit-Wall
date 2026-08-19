@@ -50,19 +50,21 @@ The harness MUST accept two `.sto` files and report byte-level differences local
 
 ### Requirement: HTML export oracle
 
-The suite MUST parse the garage HTML export (`IRacingSetups/fixed_ferrariGT3296.htm`) and cross-map each parameter to the corresponding typed `CarSetup` value from the parser.
+The suite MUST parse the garage HTML export (`IRacingSetups/fixed_ferrariGT3296.htm`) and cross-map each parameter to a typed `CarSetup` value (canonical YAML names); typed values come from the export, not from `.sto` parsing.
 
 #### Scenario: Ferrari field-for-field match
 
-- GIVEN the Ferrari Spa `.sto` and its HTML export
-- WHEN mapped values are compared
-- THEN each parameter in the HTML export matches the corresponding parser value field-for-field
+- GIVEN the official Ferrari 296 GT3 HTML export
+- WHEN the oracle maps export parameters to the typed `CarSetup` model
+- THEN each mapped parameter carries the export value field-for-field under its canonical name
 
-#### Scenario: Oracle mismatch detection
+#### Scenario: HTML export cross-map
 
-- GIVEN a mapped parameter whose `.sto` value differs from the HTML export
-- WHEN the oracle check runs
-- THEN the mismatch is reported with parameter name and both values
+- GIVEN the official Ferrari 296 GT3 HTML export
+- WHEN the oracle cross-maps export parameters to the typed `CarSetup` model
+- THEN mapped parameters are produced field-for-field with canonical names and units
+- AND an unknown car or malformed HTML yields no typed overlay (`null`, no fabricated values)
+- AND the `.sto` stays opaque — unknown bytes survive serialize unchanged
 
 ### Requirement: Acceptance gate ≥4 cars
 

@@ -20,7 +20,7 @@ Verified on all 5 fixtures: 4×`uint32 LE` = 16 bytes.
 | Offset | Field | Contract |
 |---|---|---|
 | 0 | `magic` | MUST be `0x0003`; else `invalid-magic` |
-| 4 | `fs` | MUST equal `bytes.length − 16` (verified 18158/18094/18302/12586); else `size-mismatch` |
+| 4 | `fs` | Declared payload size; MUST satisfy `8 + fs ≤ bytes.length` (else `truncated`). Canonical files have `fs == bytes.length − 16` (8-byte trailer), but a non-canonical `fs` is legal when the trailer (bytes after `8+fs`) is ≥8 bytes and ends in 8 zero bytes — real Spa: fs 18302 vs 18374 (80-byte record trailer); else `size-mismatch` |
 | 8 | `reserved1` | Opaque; observed 1840–2080 per car; round-trips; never interpreted |
 | 12 | `reserved2` | Opaque; observed 16182 GT3 / 10706 Porsche Cup; round-trips |
 
@@ -41,9 +41,9 @@ Harness = in-memory ops only: `byte-diff` (regions), `mutator` (flips), `html-or
 
 Maps `IRacingSetups/*.sto` (committed, read-only): Ferrari V1/V2 (`diff-pair`); Mustang, Mercedes, Porsche Cup (`oracle-source`); Ferrari + HTML = oracle pair. SHA-256-pinned; tests assert hash before/after; no write path.
 
-### D6: Notes codec
+### D6: Notes section
 
-Trailer = 2 key bytes + XOR stream + 8×`0x00` terminator. Keystream `k=(k+0xf0)*0xfb % 0xff`, initial `key = k1^k2` (irset-watermark). Decode/encode exact inverses; text as `notes.text`; constants pinned by golden tests on the real V1 trailer.
+Notes are plain UTF-16LE text (Latin-1 printable/whitespace code units) held as the longest text suffix of the payload, terminated by one or more NUL pairs: `raw` keeps the terminator, `text` strips it, and `encodeNotes` re-encodes text to UTF-16LE + one NUL pair (exact inverse). The trailer region (bytes after `8+fs`) MUST be ≥8 bytes (else `truncated`) and end in 8 zero bytes (else `trailer-invalid`). No XOR codec exists in the real fixtures — exhaustive RE found none (P4 re-plan); golden tests pin V1 8090 chars / Porsche 5352 chars.
 
 ## Data Flow
 
@@ -57,7 +57,7 @@ Trailer = 2 key bytes + XOR stream + 8×`0x00` terminator. Keystream `k=(k+0xf0)
 | `package.json` (root) | Create | Private; `workspaces: ["packages/*"]` |
 | `packages/sto-parser/{package.json, tsconfig.json (strict), vitest.config.ts}` | Create | Lib scaffold, no framework deps |
 | `packages/sto-parser/src/{errors.ts, index.ts}` | Create | Error taxonomy + Result union; public API only |
-| `packages/sto-parser/src/container/{header,notes,container}.ts` | Create | Header parse/serialize; XOR codec; parse/serialize |
+| `packages/sto-parser/src/container/{header,notes,container}.ts` | Create | Header parse/serialize; UTF-16LE notes; parse/serialize |
 | `packages/sto-parser/test/{container,notes,roundtrip}.test.ts` | Create | RED-first Vitest suites |
 | `packages/sto-validation-oracle/*` | Create | Dev-only pkg: `src/{fixtures,byte-diff,mutator,html-oracle,gate}.ts` + tests |
 | `IRacingSetups/*` | Keep | Commit as read-only fixtures (currently untracked) |

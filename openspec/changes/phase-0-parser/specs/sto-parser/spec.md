@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Lossless parser/serializer for iRacing's undocumented binary `.sto` setup files (PRD §6 parser epic, §10 fase 0, blocking). Covers the container layer (magic `0x0003` LE, 16-byte header, declared payload size, main payload, XOR-obfuscated notes trailer), a typed `CarSetup` overlay validated with Zod 4 using canonical YAML names, and raw preservation of unknown sections. Pure TS library, no framework deps, validated in isolation before any UI.
+Lossless parser/serializer for iRacing's undocumented binary `.sto` setup files (PRD §6 parser epic, §10 fase 0, blocking). Covers the container layer (magic `0x0003` LE, 16-byte header, declared payload size, main payload, UTF-16LE notes trailer), a typed `CarSetup` overlay validated with Zod 4 using canonical YAML names, and raw preservation of unknown sections. Pure TS library, no framework deps, validated in isolation before any UI.
 
 ## Requirements
 
@@ -41,11 +41,11 @@ Parse followed by serialize MUST reproduce the original file byte-for-byte (iden
 
 ### Requirement: Notes trailer round-trip
 
-The parser MUST decode the XOR-obfuscated notes trailer and MUST re-encode it byte-identically on serialize.
+The parser MUST decode the UTF-16LE notes trailer and MUST re-encode it byte-identically on serialize.
 
 #### Scenario: Notes preserved
 
-- GIVEN a fixture whose trailer contains XOR-obfuscated notes terminated by 8 zero bytes
+- GIVEN a fixture whose trailer contains UTF-16LE notes terminated by 8 zero bytes
 - WHEN parsed and serialized
 - THEN the trailer bytes are identical to the original
 - AND the decoded notes are exposed as plain text

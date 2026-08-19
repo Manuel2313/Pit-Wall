@@ -8,7 +8,7 @@ npm workspaces monorepo (`packages/*`):
 
 | Package | Visibility | Purpose |
 |---|---|---|
-| `packages/sto-parser` | public — `@pit-wall/sto-parser` | Pure-TS parser/serializer for iRacing `.sto` files: container layer (magic `0x0003`, 16-byte header, payload), XOR-obfuscated notes trailer, typed `CarSetup` overlay validated with Zod 4. Byte-identical round-trip is a hard requirement. |
+| `packages/sto-parser` | public — `@pit-wall/sto-parser` | Pure-TS parser/serializer for iRacing `.sto` files: container layer (magic `0x0003`, 16-byte header, payload), UTF-16LE notes trailer, typed `CarSetup` overlay validated with Zod 4. Byte-identical round-trip is a hard requirement. |
 | `packages/sto-validation-oracle` | private — `@pit-wall/sto-validation-oracle` | Dev-only validation tooling: read-only fixture registry, byte-diff RE harness, deterministic mutator, HTML-export oracle, acceptance gate. Never ships to consumers. |
 
 ## Install
