@@ -5,10 +5,13 @@ context: |
   Product: Pit Wall - setup manager web para sim racing (iRacing, GT3 + Porsche Cup).
   Source of truth: PRD.md v0.5 (repo root). Repo fresh: git initialized, no code yet.
   Stack (planned, NOT scaffolded): Angular standalone + signals + zoneless, Tailwind CSS 4,
-  Zod 4, TypeScript strict, Supabase (Postgres + Auth + RLS), Playwright E2E.
-  Hosting: Vercel/Netlify + Supabase Cloud. Persistence: hybrid (openspec/ + Engram).
+  Zod 4, TypeScript strict, backend propio (NestJS + TypeScript + PostgreSQL, auth y
+  storage in-house), Playwright E2E.
+  Hosting: Vercel/Netlify (frontend); deploy del backend propio a decidir en diseño.
+  Persistence: hybrid (openspec/ + Engram).
   First change: Fase 0 - .sto parser (blocking, priority #1). Validation: >=4 real .sto files
-  (GT3 + Porsche Cup) before any UI. RLS from day 1. Export .sto nativo (portability).
+  (GT3 + Porsche Cup) before any UI. User-data isolation in the in-house backend from
+  day 1 (RLS-equivalent, tested). Export .sto nativo (portability).
 
 testing:
   strict_tdd: true
