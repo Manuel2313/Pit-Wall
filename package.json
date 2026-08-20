@@ -5,16 +5,25 @@
   "type": "module",
   "description": "Pit Wall - setup manager for iRacing sim racing. Fase 0: isolated .sto parser monorepo.",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "apps/*"
   ],
   "scripts": {
     "test": "vitest run",
+    "test:api": "vitest run apps/api",
+    "test:web": "cd apps/web && npx vitest run",
+    "test:e2e": "npx playwright test",
     "test:sto-parser": "vitest run packages/sto-parser",
-    "test:sto-validation-oracle": "vitest run packages/sto-validation-oracle"
+    "test:sto-validation-oracle": "vitest run packages/sto-validation-oracle",
+    "build:web": "cd apps/web && npx ng build",
+    "start:web": "cd apps/web && npx ng serve"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
-    "typescript": "^7.0.2",
+    "typescript": "~6.0.3",
     "vitest": "^3.2.7"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.62.1"
   }
 }
