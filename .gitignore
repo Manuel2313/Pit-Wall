@@ -5,3 +5,10 @@
 node_modules/
 dist/
 coverage/
+
+# Framework build caches
+.angular/
+
+# Test runner artifacts
+playwright-report/
+test-results/
