@@ -13,6 +13,7 @@
     "test:api": "vitest run apps/api",
     "test:web": "cd apps/web && npx vitest run",
     "test:e2e": "npx playwright test",
+    "test:contracts": "vitest run packages/api-contracts",
     "test:sto-parser": "vitest run packages/sto-parser",
     "test:sto-validation-oracle": "vitest run packages/sto-validation-oracle",
     "build:web": "cd apps/web && npx ng build",
