@@ -4,8 +4,9 @@ import { DatabaseModule } from './database/database.module'
 import { HealthModule } from './health/health.module'
 import { StorageModule } from './storage/storage.module'
 import { AuthModule } from './auth/auth.module'
+import { CatalogModule } from './catalog/catalog.module'
 
 @Module({
-  imports: [ConfigModule.forRoot(), DatabaseModule, HealthModule, StorageModule.forRoot(), AuthModule],
+  imports: [ConfigModule.forRoot(), DatabaseModule, HealthModule, StorageModule.forRoot(), AuthModule, CatalogModule],
 })
 export class AppModule {}
