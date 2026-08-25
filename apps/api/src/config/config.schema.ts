@@ -7,6 +7,7 @@ export const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().email().optional(),
+  STORAGE_PATH: z.string().default('./storage'),
 })
 
 export type EnvConfig = z.infer<typeof envSchema>
