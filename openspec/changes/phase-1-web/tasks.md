@@ -38,7 +38,7 @@ Chain strategy: stacked-to-main
 - [x] 1.6 Config: Zod env validation, typed startup error (BF).
 - [x] 1.7 Migrations: users/sessions/reset_tokens/cars/tracks/setups/setup_versions/feedback_entries/tags/setup_tags.
 - [x] 1.8 [RED->GREEN] Tenant-scoped repos; A≠B unit tests (BF).
-- [ ] 1.9 [RED->GREEN] StorageAdapter fs + FileNotFound + round-trip.
+- [x] 1.9 [RED->GREEN] StorageAdapter fs + FileNotFound + round-trip.
 
 ## Phase 2: Core Implementation (backend)
 
