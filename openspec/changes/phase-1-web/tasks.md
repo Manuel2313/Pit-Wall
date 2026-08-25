@@ -34,10 +34,10 @@ Chain strategy: stacked-to-main
 - [x] 1.2 apps/web: Angular 22 standalone/signals/zoneless + Tailwind 4 + TS6 strict + Vitest; smoke green.
 - [x] 1.3 Playwright smoke + sto-parser import smoke; scaffold before UI.
 - [x] 1.4 packages/api-contracts: Zod 4 DTOs + types + schema tests.
-- [ ] 1.5 apps/api: NestJS 11 strict TS + Vitest/pg-mem; /health (BF).
-- [ ] 1.6 Config: Zod env validation, typed startup error (BF).
-- [ ] 1.7 Migrations: users/sessions/reset_tokens/cars/tracks/setups/setup_versions/feedback_entries/tags/setup_tags.
-- [ ] 1.8 [RED->GREEN] Tenant-scoped repos; A≠B unit tests (BF).
+- [x] 1.5 apps/api: NestJS 11 strict TS + Vitest/pg-mem; /health (BF).
+- [x] 1.6 Config: Zod env validation, typed startup error (BF).
+- [x] 1.7 Migrations: users/sessions/reset_tokens/cars/tracks/setups/setup_versions/feedback_entries/tags/setup_tags.
+- [x] 1.8 [RED->GREEN] Tenant-scoped repos; A≠B unit tests (BF).
 - [ ] 1.9 [RED->GREEN] StorageAdapter fs + FileNotFound + round-trip.
 
 ## Phase 2: Core Implementation (backend)
