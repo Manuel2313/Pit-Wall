@@ -31,6 +31,20 @@ export class TagRepository {
     })
   }
 
+  async findByNameForUser(userId: string, name: string): Promise<Tag | null> {
+    return this.tagRepo.findOne({
+      where: { userId, name },
+    })
+  }
+
+  async findOrCreateForUser(userId: string, name: string): Promise<Tag> {
+    const existing = await this.findByNameForUser(userId, name)
+    if (existing) {
+      return existing
+    }
+    return this.createForUser(userId, name)
+  }
+
   async addTagToSetup(setupId: string, userId: string, tagId: string): Promise<SetupTag> {
     // Verify setup belongs to user
     const setup = await this.setupRepository.findByIdForUser(setupId, userId)

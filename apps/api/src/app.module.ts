@@ -7,8 +7,23 @@ import { AuthModule } from './auth/auth.module'
 import { CatalogModule } from './catalog/catalog.module'
 import { ImportModule } from './import/import.module'
 import { VersionsModule } from './versions/versions.module'
+import { FeedbackModule } from './feedback/feedback.module'
+import { ExportModule } from './export/export.module'
+import { TagsModule } from './tags/tags.module'
 
 @Module({
-  imports: [ConfigModule.forRoot(), DatabaseModule, HealthModule, StorageModule.forRoot(), AuthModule, CatalogModule, ImportModule, VersionsModule],
+  imports: [
+    ConfigModule.forRoot(),
+    DatabaseModule,
+    HealthModule,
+    StorageModule.forRoot(),
+    AuthModule,
+    CatalogModule,
+    ImportModule,
+    VersionsModule,
+    FeedbackModule,
+    ExportModule,
+    TagsModule,
+  ],
 })
 export class AppModule {}
