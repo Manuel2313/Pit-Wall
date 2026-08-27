@@ -174,10 +174,10 @@ export const versionDetailSchema = versionSummarySchema.extend({
 
 /** GET /diff query params */
 export const diffRequestSchema = z.object({
-  fromVersion: z.int().positive(),
-  toVersion: z.int().positive(),
-}).refine((data) => data.fromVersion < data.toVersion, {
-  message: 'fromVersion must be less than toVersion',
+  fromVersion: z.string().uuid(),
+  toVersion: z.string().uuid(),
+}).refine((data) => data.fromVersion !== data.toVersion, {
+  message: 'fromVersion must be different from toVersion',
   path: ['fromVersion'],
 })
 

@@ -385,18 +385,24 @@ describe('api-contracts: Zod 4 DTO schemas', () => {
 
   describe('Diff schemas', () => {
     describe('diffRequestSchema', () => {
-      it('accepts from and to version numbers', () => {
-        const result = diffRequestSchema.safeParse({ fromVersion: 1, toVersion: 2 })
+      it('accepts from and to version UUIDs', () => {
+        const result = diffRequestSchema.safeParse({
+          fromVersion: '11111111-1111-4111-8111-111111111111',
+          toVersion: '22222222-2222-4222-8222-222222222222',
+        })
         expect(result.success).toBe(true)
       })
 
-      it('rejects fromVersion >= toVersion', () => {
-        const result = diffRequestSchema.safeParse({ fromVersion: 2, toVersion: 1 })
+      it('rejects fromVersion === toVersion', () => {
+        const result = diffRequestSchema.safeParse({
+          fromVersion: '00000000-0000-0000-0000-000000000001',
+          toVersion: '00000000-0000-0000-0000-000000000001',
+        })
         expect(result.success).toBe(false)
       })
 
-      it('rejects fromVersion < 1', () => {
-        const result = diffRequestSchema.safeParse({ fromVersion: 0, toVersion: 2 })
+      it('rejects invalid UUID format', () => {
+        const result = diffRequestSchema.safeParse({ fromVersion: 'not-a-uuid', toVersion: 'also-not-a-uuid' })
         expect(result.success).toBe(false)
       })
     })
