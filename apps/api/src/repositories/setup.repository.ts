@@ -57,4 +57,19 @@ export class SetupRepository {
     }
     return true
   }
+
+  async findOrCreateForUser(
+    userId: string,
+    carId: string,
+    trackId: string,
+    condition: string,
+  ): Promise<Setup> {
+    const existing = await this.repo.findOne({
+      where: { userId, carId, trackId, condition },
+    })
+    if (existing) {
+      return existing
+    }
+    return this.createForUser(userId, { carId, trackId, condition })
+  }
 }

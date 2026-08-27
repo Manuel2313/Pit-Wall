@@ -1,4 +1,6 @@
 export { ImportModule } from './import.module'
 export { ImportService } from './import.service'
 export { ImportController } from './import.controller'
+export { ImportConfirmService } from './import-confirm.service'
+export { ImportConfirmController } from './import-confirm.controller'
 export { extractMetadata } from './metadata-extractor'

@@ -46,7 +46,7 @@ Chain strategy: stacked-to-main
 - [x] 2.2 [RED->GREEN] sessions hashed tokens + AuthGuard 401 + logout (UA).
 - [x] 2.3 [RED->GREEN] recovery: hashed single-use tokens + EmailSender (UA).
 - [x] 2.4 [RED->GREEN] catalog seed 4 cars + tracks; no GT4 (SL).
-- [ ] 2.5 [RED->GREEN] import preview: metadata+SHA-256; corrupt/unsupported/anon (SI).
+- [x] 2.5 [RED->GREEN] import preview: metadata+SHA-256; corrupt/unsupported/anon (SI).
 - [ ] 2.6 [RED->GREEN] import confirm: overlay → version 1; cancel → none (SI/BF).
 - [ ] 2.7 [RED->GREEN] versions chain; /diff typed or byte-region (BF).
 - [ ] 2.8 [RED->GREEN] feedback: text required, delta optional, owner-only (FL).

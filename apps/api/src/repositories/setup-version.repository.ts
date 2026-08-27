@@ -38,6 +38,24 @@ export class SetupVersionRepository {
     return this.repo.save(version)
   }
 
+  async createVersion(
+    setupId: string,
+    userId: string,
+    versionNo: number,
+    parentVersionNo: number | null,
+    sha256: string,
+    fileRef: string,
+    overlay: Record<string, Record<string, string>> | null,
+  ): Promise<SetupVersion> {
+    return this.createForSetup(setupId, userId, {
+      versionNo,
+      parentVersionNo,
+      sha256,
+      fileRef,
+      overlay,
+    })
+  }
+
   async findBySetupForUser(setupId: string, userId: string): Promise<SetupVersion[]> {
     // First verify the setup belongs to the user
     const setup = await this.setupRepository.findByIdForUser(setupId, userId)
