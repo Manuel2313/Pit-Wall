@@ -49,9 +49,9 @@ Chain strategy: stacked-to-main
 - [x] 2.5 [RED->GREEN] import preview: metadata+SHA-256; corrupt/unsupported/anon (SI).
 - [x] 2.6 [RED->GREEN] import confirm: overlay → version 1; cancel → none (SI/BF).
 - [x] 2.7 [RED->GREEN] versions chain; /diff typed or byte-region (BF).
-- [ ] 2.8 [RED->GREEN] feedback: text required, delta optional, owner-only (FL).
-- [ ] 2.9 [RED->GREEN] export byte-identical; no-export manual-only (SE).
-- [ ] 2.10 [RED->GREEN] tags owner-scoped; A≠B API tests (SL/BF).
+- [x] 2.8 [RED->GREEN] feedback: text required, delta optional, owner-only (FL).
+- [x] 2.9 [RED->GREEN] export byte-identical; no-export manual-only (SE).
+- [x] 2.10 [RED->GREEN] tags owner-scoped; A≠B API tests (SL/BF).
 
 ## Phase 3: Integration / Wiring (web UI)
 

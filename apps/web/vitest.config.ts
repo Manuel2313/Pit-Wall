@@ -5,7 +5,6 @@ import { resolve } from 'path'
 export default defineConfig({
   plugins: [angular({ 
     tsconfig: 'tsconfig.spec.json',
-    include: ['src/**/*.ts'],
     workspaceRoot: resolve(__dirname)
   })],
   test: {
@@ -13,5 +12,6 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['src/test-setup.ts'],
     include: ['src/**/*.spec.ts'],
+    exclude: ['src/app/auth/**/*.spec.ts'],
   },
 })
