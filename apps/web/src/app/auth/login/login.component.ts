@@ -2,6 +2,7 @@ import { Component, signal, inject } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'
 import { Router, RouterLink } from '@angular/router'
+import { HttpErrorResponse } from '@angular/common/http'
 import { AuthService } from '../auth.service'
 
 @Component({
@@ -119,9 +120,10 @@ export class LoginComponent {
         this.isLoading.set(false)
         this.router.navigate(['/'])
       },
-      error: (err) => {
+      error: (err: unknown) => {
         this.isLoading.set(false)
-        this.error.set(err.error?.message || 'Invalid email or password. Please try again.')
+        const message = err instanceof HttpErrorResponse ? err.error?.message : undefined
+        this.error.set(message || 'Invalid email or password. Please try again.')
       },
     })
   }

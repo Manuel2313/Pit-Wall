@@ -14,7 +14,16 @@ export const routes: Routes = [
     path: '',
     canActivate: [authGuard],
     loadComponent: () => import('./layout/layout.component').then((m) => m.LayoutComponent),
-    children: [],
+    children: [
+      {
+        path: 'import',
+        loadComponent: () => import('./import/import.component').then((m) => m.ImportComponent),
+      },
+      {
+        path: 'library/:id',
+        loadComponent: () => import('./library/library.component').then((m) => m.LibraryComponent),
+      },
+    ],
   },
   { path: '**', redirectTo: '' },
 ]

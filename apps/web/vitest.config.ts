@@ -5,8 +5,10 @@ import { resolve } from 'path'
 export default defineConfig({
   plugins: [angular({ 
     tsconfig: 'tsconfig.spec.json',
-    workspaceRoot: resolve(__dirname)
+    workspaceRoot: resolve(__dirname),
+    include: ['src/app/import/**/*.ts'],
   })],
+  esbuild: true,
   test: {
     globals: true,
     environment: 'jsdom',
