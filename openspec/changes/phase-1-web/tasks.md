@@ -57,7 +57,7 @@ Chain strategy: stacked-to-main
 
 - [x] 3.1 Web auth: pages, AuthService, guard, /me restore, logout (UA).
 - [x] 3.2 Web import: preview → HTML/manual → confirm/cancel (SI).
-- [ ] 3.3 Web library: filters, own-only, history, diff/compare (SL).
+- [x] 3.3 Web library: filters, own-only, history, diff/compare (SL).
 - [ ] 3.4 Web feedback/tags/export incl. no-export (FL/SE).
 
 ## Phase 4: Testing / Verification
