@@ -10,6 +10,11 @@ import type {
   TypedDiffResponse,
   ByteDiffResponse,
   ExportResponse,
+  FeedbackEntry,
+  CreateFeedbackRequest,
+  FeedbackListResponse,
+  UpdateTagsRequest,
+  TagsResponse,
 } from '@pit-wall/api-contracts'
 
 @Injectable({ providedIn: 'root' })
@@ -43,5 +48,39 @@ export class LibraryService {
 
   exportVersion(versionId: string): Observable<ExportResponse> {
     return this.http.get<ExportResponse>(`${this.apiUrl}/versions/${versionId}/file`, { withCredentials: true })
+  }
+
+  // Feedback
+  createFeedback(versionId: string, body: CreateFeedbackRequest): Observable<FeedbackEntry> {
+    return this.http.post<FeedbackEntry>(`${this.apiUrl}/versions/${versionId}/feedback`, body, { withCredentials: true })
+  }
+
+  listFeedbackByVersion(versionId: string): Observable<FeedbackListResponse> {
+    return this.http.get<FeedbackListResponse>(`${this.apiUrl}/versions/${versionId}/feedback`, { withCredentials: true })
+  }
+
+  listFeedbackBySetup(setupId: string): Observable<FeedbackListResponse> {
+    return this.http.get<FeedbackListResponse>(`${this.apiUrl}/setups/${setupId}/feedback`, { withCredentials: true })
+  }
+
+  updateFeedback(feedbackId: string, body: Partial<CreateFeedbackRequest>): Observable<FeedbackEntry> {
+    return this.http.patch<FeedbackEntry>(`${this.apiUrl}/feedback/${feedbackId}`, body, { withCredentials: true })
+  }
+
+  deleteFeedback(feedbackId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/feedback/${feedbackId}`, { withCredentials: true })
+  }
+
+  // Tags
+  updateTags(setupId: string, body: UpdateTagsRequest): Observable<TagsResponse> {
+    return this.http.put<TagsResponse>(`${this.apiUrl}/setups/${setupId}/tags`, body, { withCredentials: true })
+  }
+
+  getTags(setupId: string): Observable<TagsResponse> {
+    return this.http.get<TagsResponse>(`${this.apiUrl}/setups/${setupId}/tags`, { withCredentials: true })
+  }
+
+  deleteTags(setupId: string, body: UpdateTagsRequest): Observable<TagsResponse> {
+    return this.http.request<TagsResponse>('DELETE', `${this.apiUrl}/setups/${setupId}/tags`, { body, withCredentials: true })
   }
 }

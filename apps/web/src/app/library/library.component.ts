@@ -1,9 +1,18 @@
 import { Component, signal, inject, computed, OnInit, effect } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms'
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'
 import { Router, ActivatedRoute } from '@angular/router'
 import { LibraryService } from './library.service'
-import type { SetupListItem, SetupDetail, SetupListQuery, VersionSummary, TypedDiffResponse, ByteDiffResponse } from '@pit-wall/api-contracts'
+import type {
+  SetupListItem,
+  SetupDetail,
+  SetupListQuery,
+  VersionSummary,
+  TypedDiffResponse,
+  ByteDiffResponse,
+  FeedbackEntry,
+  CreateFeedbackRequest,
+} from '@pit-wall/api-contracts'
 
 type ViewMode = 'list' | 'detail' | 'diff'
 
@@ -201,6 +210,8 @@ interface DiffResult {
                     Export .sto
                   }
                 </button>
+              } @else {
+                <span class="px-3 py-1.5 text-sm text-gray-500 bg-gray-50 rounded-md">No export available (manual entry only)</span>
               }
             </div>
           </div>
@@ -233,6 +244,8 @@ interface DiffResult {
                         </p>
                         @if (version.hasOverlay) {
                           <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 mt-1">Has typed overlay</span>
+                        } @else {
+                          <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600 mt-1">Manual entry only</span>
                         }
                       </div>
                     </div>
@@ -266,6 +279,212 @@ interface DiffResult {
                 }
               </div>
             }
+
+            <!-- Feedback Section -->
+            <div class="mt-8 pt-6 border-t border-gray-200">
+<div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-medium text-gray-900">Feedback</h3>
+              <button
+                (click)="loadAllFeedback()"
+                [disabled]="loadingAllFeedback()"
+                class="text-sm text-indigo-600 hover:text-indigo-800"
+              >
+                Load all feedback
+              </button>
+            </div>
+
+              @for (version of versions(); track version.versionNo) {
+                <div class="mb-6">
+                  <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-medium text-gray-900">Version {{ version.versionNo }} Feedback</h4>
+                    <button
+                      (click)="loadFeedbackForVersion(version.versionNo)"
+                      [disabled]="isFeedbackLoading(version.versionNo)"
+                      class="text-sm text-indigo-600 hover:text-indigo-800"
+                    >
+                      @if (isFeedbackLoading(version.versionNo)) {
+                        <svg class="animate-spin inline h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        Loading...
+                      } @else {
+                        Load feedback
+                      }
+                    </button>
+                  </div>
+
+                  @if (feedbackList().length > 0) {
+                    <div class="space-y-3">
+                      @for (feedback of feedbackList(); track feedback.id) {
+                        <div class="border border-gray-200 rounded-lg p-4">
+                          <div class="flex items-start justify-between gap-4">
+                            <div class="flex-1 min-w-0">
+                              <p class="text-gray-900 whitespace-pre-wrap">{{ feedback.text }}</p>
+                              @if (feedback.lapDeltaMs !== null && feedback.lapDeltaMs !== undefined) {
+                                <p class="mt-1 text-sm text-gray-600">
+                                  Lap delta: {{ feedback.lapDeltaMs > 0 ? '+' : '' }}{{ feedback.lapDeltaMs }} ms
+                                </p>
+                              }
+                              <p class="mt-2 text-xs text-gray-500">{{ formatDate(feedback.createdAt) }}</p>
+                            </div>
+                            <div class="flex items-center gap-2 flex-shrink-0">
+                              @if (editingFeedbackId() === feedback.id) {
+                                <button
+                                  (click)="saveEditFeedback(feedback.id)"
+                                  class="px-3 py-1 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  (click)="cancelEditFeedback()"
+                                  class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded"
+                                >
+                                  Cancel
+                                </button>
+                              } @else {
+                                <button
+                                  (click)="startEditFeedback(feedback)"
+                                  class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  (click)="deleteFeedback(feedback.id)"
+                                  class="px-3 py-1 text-sm font-medium text-red-600 bg-white border border-gray-300 hover:bg-red-50 rounded"
+                                >
+                                  Delete
+                                </button>
+                              }
+                            </div>
+                          </div>
+
+                          @if (editingFeedbackId() === feedback.id) {
+                            <form [formGroup]="editFeedbackForm" (ngSubmit)="saveEditFeedback(feedback.id)" class="mt-3 space-y-2">
+                              <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Feedback text</label>
+                                <textarea
+                                  formControlName="text"
+                                  rows="3"
+                                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                ></textarea>
+                              </div>
+                              <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Lap delta (ms, optional)</label>
+                                <input
+                                  type="number"
+                                  formControlName="lapDeltaMs"
+                                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                  placeholder="e.g., -150 or +200"
+                                />
+                              </div>
+                            </form>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+
+                  <!-- Add Feedback Form -->
+                  <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+                    <h5 class="font-medium text-gray-900 mb-3">Add Feedback</h5>
+                    <form [formGroup]="editFeedbackForm" (ngSubmit)="submitFeedback(version.versionNo)" class="space-y-3">
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Feedback text <span class="text-red-500">*</span></label>
+                        <textarea
+                          formControlName="text"
+                          rows="3"
+                          class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                          placeholder="Enter your feedback for this version..."
+                        ></textarea>
+                        @if (editFeedbackForm.get('text')?.invalid && editFeedbackForm.get('text')?.touched) {
+                          <p class="mt-1 text-sm text-red-600">Feedback text is required</p>
+                        }
+                      </div>
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Lap delta (ms, optional)</label>
+                        <input
+                          type="number"
+                          formControlName="lapDeltaMs"
+                          class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                          placeholder="e.g., -150 or +200"
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        [disabled]="editFeedbackForm.invalid || submittingFeedback() === version.versionNo"
+                        class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        @if (submittingFeedback() === version.versionNo) {
+                          <svg class="animate-spin -ml-1 mr-2 h-4 w-4 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                          Adding...
+                        } @else {
+                          Add Feedback
+                        }
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Tags Section -->
+            <div class="mt-8 pt-6 border-t border-gray-200">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Tags</h3>
+                <button
+                  (click)="loadTags()"
+                  [disabled]="loadingTags()"
+                  class="text-sm text-indigo-600 hover:text-indigo-800"
+                >
+                  @if (loadingTags()) {
+                    <svg class="animate-spin inline h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    Loading...
+                  } @else {
+                    Reload tags
+                  }
+                </button>
+              </div>
+
+              @if (tags().length > 0) {
+                <div class="flex flex-wrap gap-2 mb-4">
+                  @for (tag of tags(); track tag) {
+                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm">
+                      {{ tag }}
+                      <button
+                        (click)="removeTag(tag)"
+                        class="text-indigo-500 hover:text-indigo-700 font-bold leading-none"
+                        aria-label="Remove tag"
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  }
+                </div>
+              } @else {
+                <p class="text-sm text-gray-500 mb-4">No tags yet</p>
+              }
+
+              <div class="flex gap-2">
+                <input
+                  type="text"
+                  [value]="tagInput()"
+                  (input)="tagInput.set($event.target.value)"
+                  (keyup.enter)="addTag()"
+                  placeholder="Add a tag..."
+                  class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                />
+                <button
+                  (click)="addTag()"
+                  [disabled]="!tagInput().trim() || savingTags()"
+                  class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  @if (savingTags()) {
+                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    Saving...
+                  } @else {
+                    Add Tag
+                  }
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       }
@@ -390,6 +609,23 @@ export class LibraryComponent implements OnInit {
   loadingDiff = signal(false)
   error = signal<string | null>(null)
   exportingVersion = signal<number | null>(null)
+
+  // Feedback state
+  feedbackList = signal<FeedbackEntry[]>([])
+  loadingFeedback = signal<Record<number, boolean>>({})
+  loadingAllFeedback = signal(false)
+  submittingFeedback = signal<number | null>(null)
+  editingFeedbackId = signal<string | null>(null)
+  editFeedbackForm = this.fb.group({
+    text: ['', Validators.required],
+    lapDeltaMs: [null as number | null],
+  })
+
+  // Tags state
+  tags = signal<string[]>([])
+  loadingTags = signal(false)
+  savingTags = signal(false)
+  tagInput = signal('')
 
   // Diff state
   diffFromVersion = signal<number | null>(null)
@@ -591,9 +827,6 @@ export class LibraryComponent implements OnInit {
       next: (response) => {
         this.exportingVersion.set(null)
         if (response.success) {
-          // Trigger download
-          this.libraryService.exportVersion(String(versionNo)).subscribe() // Re-request for blob
-          // Actually, we need a different approach for file download
           this.downloadStoFile(setup.id, versionNo)
         } else {
           this.error.set(response.error || 'Export failed')
@@ -620,6 +853,148 @@ export class LibraryComponent implements OnInit {
       .catch(() => {
         this.error.set('Failed to download file.')
       })
+  }
+
+  // Feedback methods
+  loadFeedbackForVersion(versionNo: number): void {
+    this.loadingFeedback.update(v => ({ ...v, [versionNo]: true }))
+    this.libraryService.listFeedbackByVersion(String(versionNo)).subscribe({
+      next: (feedback) => {
+        this.feedbackList.set(feedback)
+        this.loadingFeedback.update(v => ({ ...v, [versionNo]: false }))
+      },
+      error: () => {
+        this.loadingFeedback.update(v => ({ ...v, [versionNo]: false }))
+        this.error.set('Failed to load feedback.')
+      },
+    })
+  }
+
+  loadAllFeedback(): void {
+    const setup = this.selectedSetup()
+    if (!setup) return
+    this.loadingAllFeedback.set(true)
+    this.libraryService.listFeedbackBySetup(setup.id).subscribe({
+      next: (feedback) => {
+        this.feedbackList.set(feedback)
+        this.loadingAllFeedback.set(false)
+      },
+      error: () => {
+        this.loadingAllFeedback.set(false)
+        this.error.set('Failed to load feedback.')
+      },
+    })
+  }
+
+  submitFeedback(versionNo: number): void {
+    if (this.editFeedbackForm.invalid) return
+    const body = this.editFeedbackForm.getRawValue() as CreateFeedbackRequest
+    this.submittingFeedback.set(versionNo)
+    this.libraryService.createFeedback(String(versionNo), body).subscribe({
+      next: (entry) => {
+        this.feedbackList.update(list => [entry, ...list])
+        this.editFeedbackForm.reset({ text: '', lapDeltaMs: null })
+        this.submittingFeedback.set(null)
+      },
+      error: () => {
+        this.submittingFeedback.set(null)
+        this.error.set('Failed to add feedback.')
+      },
+    })
+  }
+
+  startEditFeedback(feedback: FeedbackEntry): void {
+    this.editingFeedbackId.set(feedback.id)
+    this.editFeedbackForm.setValue({
+      text: feedback.text,
+      lapDeltaMs: feedback.lapDeltaMs ?? null,
+    })
+  }
+
+  saveEditFeedback(feedbackId: string): void {
+    if (this.editFeedbackForm.invalid) return
+    const body = this.editFeedbackForm.getRawValue() as Partial<CreateFeedbackRequest>
+    this.libraryService.updateFeedback(feedbackId, body).subscribe({
+      next: (updated) => {
+        this.feedbackList.update(list =>
+          list.map(f => f.id === feedbackId ? updated : f)
+        )
+        this.editingFeedbackId.set(null)
+        this.editFeedbackForm.reset({ text: '', lapDeltaMs: null })
+      },
+      error: () => this.error.set('Failed to update feedback.'),
+    })
+  }
+
+  cancelEditFeedback(): void {
+    this.editingFeedbackId.set(null)
+    this.editFeedbackForm.reset({ text: '', lapDeltaMs: null })
+  }
+
+  deleteFeedback(feedbackId: string): void {
+    if (!confirm('Delete this feedback?')) return
+    this.libraryService.deleteFeedback(feedbackId).subscribe({
+      next: () => {
+        this.feedbackList.update(list => list.filter(f => f.id !== feedbackId))
+      },
+      error: () => this.error.set('Failed to delete feedback.'),
+    })
+  }
+
+  isFeedbackLoading(versionNo: number): boolean {
+    return this.loadingFeedback()[versionNo] === true
+  }
+
+  // Tags methods
+  loadTags(): void {
+    const setup = this.selectedSetup()
+    if (!setup) return
+    this.loadingTags.set(true)
+    this.libraryService.getTags(setup.id).subscribe({
+      next: (response) => {
+        this.tags.set(response.tags)
+        this.loadingTags.set(false)
+      },
+      error: () => {
+        this.loadingTags.set(false)
+        this.error.set('Failed to load tags.')
+      },
+    })
+  }
+
+  addTag(): void {
+    const tag = this.tagInput().trim()
+    if (!tag) return
+    const setup = this.selectedSetup()
+    if (!setup) return
+    this.savingTags.set(true)
+    this.libraryService.updateTags(setup.id, { tags: [...this.tags(), tag] }).subscribe({
+      next: (response) => {
+        this.tags.set(response.tags)
+        this.tagInput.set('')
+        this.savingTags.set(false)
+      },
+      error: () => {
+        this.savingTags.set(false)
+        this.error.set('Failed to add tag.')
+      },
+    })
+  }
+
+  removeTag(tagName: string): void {
+    const setup = this.selectedSetup()
+    if (!setup) return
+    this.savingTags.set(true)
+    this.libraryService.deleteTags(setup.id, { tags: [tagName] }).subscribe({
+      next: (response) => {
+        this.tags.set(response.tags)
+        this.savingTags.set(false)
+      },
+      error: () => {
+        this.savingTags.set(false)
+        this.error.set('Failed to remove tag.')
+      },
+    })
   }
 
   clearFilters(): void {
