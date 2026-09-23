@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pitwall-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: pitwall
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: pitwall-api
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/pitwall
+      JWT_SECRET: super-secret-jwt-key-change-in-production-min-32-chars
+      PORT: 3000
+      NODE_ENV: development
+      RESEND_API_KEY: ""
+      EMAIL_FROM: "noreply@pitwall.local"
+      STORAGE_PATH: /app/storage
+      SESSION_TTL_DAYS: 30
+      RESET_TOKEN_TTL_HOURS: 1
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - api_storage:/app/storage
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: pitwall-web
+    environment:
+      NODE_ENV: development
+    ports:
+      - "4200:4200"
+    depends_on:
+      - api
+    volumes:
+      - web_node_modules:/app/node_modules
+
+volumes:
+  postgres_data:
+  api_storage:
+  web_node_modules:
