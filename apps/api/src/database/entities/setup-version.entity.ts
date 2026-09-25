@@ -9,6 +9,7 @@ import {
   Unique,
 } from 'typeorm'
 import { Setup } from './setup.entity'
+import type { CarSetupOverlay } from '@pit-wall/api-contracts'
 
 @Entity('setup_versions')
 @Unique(['setupId', 'versionNo'])
@@ -22,7 +23,7 @@ export class SetupVersion {
   setupId: string
 
   @ManyToOne(() => Setup, (setup) => setup.versions, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'setupId' })
+  @JoinColumn()
   setup: Setup
 
   @Column({ type: 'int' })
@@ -35,7 +36,7 @@ export class SetupVersion {
   sha256: string
 
   @Column({ type: 'jsonb', nullable: true })
-  overlay: Record<string, Record<string, string>> | null
+  overlay: CarSetupOverlay | null
 
   @Column({ type: 'varchar', length: 500 })
   fileRef: string

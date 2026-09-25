@@ -23,21 +23,21 @@ export class FeedbackEntry {
   userId: string
 
   @ManyToOne(() => User, (user) => user.feedbackEntries, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn()
   user: User
 
   @Column({ type: 'uuid' })
   setupId: string
 
   @ManyToOne(() => Setup, (setup) => setup.feedbackEntries, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'setupId' })
+  @JoinColumn()
   setup: Setup
 
   @Column({ type: 'uuid' })
   versionId: string
 
   @ManyToOne(() => SetupVersion, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'versionId' })
+  @JoinColumn()
   version: SetupVersion
 
   @Column({ type: 'text' })

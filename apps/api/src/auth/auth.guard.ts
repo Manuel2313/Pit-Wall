@@ -1,6 +1,5 @@
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common'
 import { AuthService } from './auth.service'
-import { createHash } from 'crypto'
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -14,10 +13,8 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Missing or invalid authorization header')
     }
 
-    const token = authHeader.slice(7) // Remove 'Bearer '
-    const tokenHash = createHash('sha256').update(token).digest('hex')
-
-    const user = await this.authService.validateSession(tokenHash)
+    const token = authHeader.slice(7)
+    const user = await this.authService.validateSession(token)
     request.user = user
 
     return true

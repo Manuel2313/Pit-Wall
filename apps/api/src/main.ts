@@ -9,6 +9,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   const configService = app.get(ConfigService)
 
+  app.enableCors({
+    origin: configService.get('FRONTEND_URL'),
+    credentials: true,
+  })
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -18,7 +23,6 @@ async function bootstrap() {
     }),
   )
 
-  // Seed catalog data on bootstrap
   const dataSource = app.get(DataSource)
   await seedCatalog(dataSource)
 

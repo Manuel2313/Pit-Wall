@@ -1,5 +1,5 @@
-import { mkdir, writeFile, readFile, unlink, rm } from 'node:fs/promises';
-import { join, dirname, resolve } from 'node:path';
+import { mkdir, writeFile, readFile, unlink } from 'node:fs/promises';
+import { dirname, resolve, sep } from 'node:path';
 import { StorageAdapter } from './storage-adapter.interface';
 import { FileNotFound } from './file-not-found.error';
 
@@ -40,6 +40,10 @@ export class FsStorageAdapter implements StorageAdapter {
   }
 
   private resolvePath(key: string): string {
-    return join(this.basePath, key);
+    const resolved = resolve(this.basePath, key);
+    if (resolved !== this.basePath && !resolved.startsWith(this.basePath + sep)) {
+      throw new Error(`Invalid storage key: path traversal detected (${key})`);
+    }
+    return resolved;
   }
 }

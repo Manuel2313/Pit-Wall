@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Tag } from '../database/entities/tag.entity'
 import { SetupTag } from '../database/entities/setup-tag.entity'
@@ -8,8 +9,8 @@ import { randomUUID } from 'crypto'
 @Injectable()
 export class TagRepository {
   constructor(
-    private readonly tagRepo: Repository<Tag>,
-    private readonly setupTagRepo: Repository<SetupTag>,
+    @InjectRepository(Tag) private readonly tagRepo: Repository<Tag>,
+    @InjectRepository(SetupTag) private readonly setupTagRepo: Repository<SetupTag>,
     private readonly setupRepository: SetupRepository,
   ) {}
 

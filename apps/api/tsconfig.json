@@ -1,28 +1,33 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node10",
+    "ignoreDeprecations": "6.0",
     "target": "ES2023",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
     "lib": ["ES2023"],
     "outDir": "./dist",
-    "rootDir": "./src",
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "forceConsistentCasingInFileNames": true,
+    "rootDir": "../..",
+    "noEmit": false,
+    "verbatimModuleSyntax": false,
+    "isolatedModules": false,
+    "exactOptionalPropertyTypes": false,
+    "strictPropertyInitialization": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "declaration": true,
-    "declarationMap": true,
+    "declaration": false,
+    "declarationMap": false,
     "sourceMap": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "baseUrl": ".",
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node", "multer"],
     "paths": {
-      "@pit-wall/api-contracts": ["../../packages/api-contracts/src"]
+      "@pit-wall/api-contracts": ["../../packages/api-contracts/src/index.ts"],
+      "@pit-wall/sto-parser": ["../../packages/sto-parser/src/index.ts"]
     }
   },
-  "include": ["src/**/*", "test/**/*", "vitest.config.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "src/**/*.test.ts", "vitest.config.ts"]
 }

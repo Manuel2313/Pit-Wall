@@ -6,7 +6,7 @@ import { ResetTokenRepository } from '../repositories/reset-token.repository'
 import { EMAIL_SENDER_TOKEN, EmailSender } from './email-sender.interface'
 import { User } from '../database/entities/user.entity'
 import { randomBytes, createHash } from 'crypto'
-import { argon2id, hash, verify } from '@node-rs/argon2'
+import { Algorithm, hash, verify } from '@node-rs/argon2'
 
 @Injectable()
 export class AuthService {
@@ -27,11 +27,11 @@ export class AuthService {
   }
 
   private async hashPassword(password: string): Promise<string> {
-    return hash(password, { algorithm: argon2id })
+    return hash(password, { algorithm: Algorithm.Argon2id })
   }
 
-  private async verifyPassword(password: string, hash: string): Promise<boolean> {
-    return verify(hash, password)
+  private async verifyPassword(password: string, hashStr: string): Promise<boolean> {
+    return verify(hashStr, password)
   }
 
   async register(email: string, password: string): Promise<{ id: string; email: string }> {
@@ -45,7 +45,7 @@ export class AuthService {
     return { id: user.id, email: user.email }
   }
 
-  async login(email: string, password: string): Promise<string> {
+  async login(email: string, password: string): Promise<{ token: string; user: User }> {
     const user = await this.userRepository.findByEmail(email)
     if (!user) {
       throw new UnauthorizedException('Invalid credentials')
@@ -63,7 +63,7 @@ export class AuthService {
 
     await this.sessionRepository.create(user.id, tokenHash, expiresAt)
 
-    return token
+    return { token, user }
   }
 
   async logout(token: string): Promise<void> {

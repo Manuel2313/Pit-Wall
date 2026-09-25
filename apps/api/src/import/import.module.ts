@@ -1,4 +1,4 @@
-import { Module, Global } from '@nestjs/common'
+import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { MulterModule } from '@nestjs/platform-express'
 import { Car } from '../database/entities/car.entity'
@@ -10,8 +10,9 @@ import { ImportController } from './import.controller'
 import { ImportConfirmService } from './import-confirm.service'
 import { ImportConfirmController } from './import-confirm.controller'
 import { StorageModule } from '../storage/storage.module'
+import { SetupRepository } from '../repositories/setup.repository'
+import { SetupVersionRepository } from '../repositories/setup-version.repository'
 
-@Global()
 @Module({
   imports: [
     TypeOrmModule.forFeature([Car, Track, Setup, SetupVersion]),
@@ -22,7 +23,7 @@ import { StorageModule } from '../storage/storage.module'
     }),
     StorageModule,
   ],
-  providers: [ImportService, ImportConfirmService],
+  providers: [ImportService, ImportConfirmService, SetupRepository, SetupVersionRepository],
   controllers: [ImportController, ImportConfirmController],
   exports: [ImportService, ImportConfirmService],
 })

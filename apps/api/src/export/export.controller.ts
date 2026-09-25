@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Request, UseGuards, Res, HttpStatus } from '@nestjs/common'
+import { Controller, Get, Param, Request, UseGuards, Res, HttpStatus, BadRequestException, NotFoundException } from '@nestjs/common'
 import { Response } from 'express'
 import { AuthGuard } from '../auth/auth.guard'
 import { ExportService } from './export.service'

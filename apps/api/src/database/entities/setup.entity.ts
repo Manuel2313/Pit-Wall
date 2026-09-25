@@ -30,21 +30,21 @@ export class Setup {
   userId: string
 
   @ManyToOne(() => User, (user) => user.setups, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn()
   user: User
 
   @Column({ type: 'uuid' })
   carId: string
 
   @ManyToOne(() => Car, (car) => car.setups)
-  @JoinColumn({ name: 'carId' })
+  @JoinColumn()
   car: Car
 
   @Column({ type: 'uuid' })
   trackId: string
 
   @ManyToOne(() => Track, (track) => track.setups)
-  @JoinColumn({ name: 'trackId' })
+  @JoinColumn()
   track: Track
 
   @Column({ type: 'varchar' })

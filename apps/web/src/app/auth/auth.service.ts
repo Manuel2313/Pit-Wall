@@ -8,6 +8,8 @@ export interface User {
   email: string
 }
 
+const TOKEN_STORAGE_KEY = 'pit-wall.sessionToken'
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly apiUrl = '/api'
@@ -17,18 +19,43 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
+  getToken(): string | null {
+    try {
+      return localStorage.getItem(TOKEN_STORAGE_KEY)
+    } catch {
+      return null
+    }
+  }
+
+  private setToken(token: string): void {
+    try {
+      localStorage.setItem(TOKEN_STORAGE_KEY, token)
+    } catch {
+      // ignore
+    }
+  }
+
+  private clearToken(): void {
+    try {
+      localStorage.removeItem(TOKEN_STORAGE_KEY)
+    } catch {
+      // ignore
+    }
+  }
+
   login(email: string, password: string): Observable<User> {
     return this.http
-      .post<LoginResponse>(`${this.apiUrl}/auth/login`, { email, password } satisfies LoginRequest, { withCredentials: true })
+      .post<LoginResponse>(`${this.apiUrl}/auth/login`, { email, password } satisfies LoginRequest)
       .pipe(
-        map((res) => ({ userId: res.sessionToken, email })),
+        tap((res) => this.setToken(res.sessionToken)),
+        map((res) => ({ userId: res.userId, email: res.email })),
         tap((user) => this.userSignal.set(user))
       )
   }
 
   register(email: string, password: string): Observable<User> {
     return this.http
-      .post<RegisterResponse>(`${this.apiUrl}/auth/register`, { email, password } satisfies RegisterRequest, { withCredentials: true })
+      .post<RegisterResponse>(`${this.apiUrl}/auth/register`, { email, password } satisfies RegisterRequest)
       .pipe(
         map((res) => ({ userId: res.userId, email: res.email })),
         tap((user) => this.userSignal.set(user))
@@ -37,19 +64,27 @@ export class AuthService {
 
   logout(): Observable<void> {
     return this.http
-      .post<void>(`${this.apiUrl}/auth/logout`, {}, { withCredentials: true })
-      .pipe(tap(() => this.userSignal.set(null)))
+      .post<void>(`${this.apiUrl}/auth/logout`, {})
+      .pipe(tap(() => {
+        this.clearToken()
+        this.userSignal.set(null)
+      }))
   }
 
-  restoreSession(): Observable<User> {
+  restoreSession(): Observable<User | null> {
+    if (!this.getToken()) {
+      this.userSignal.set(null)
+      return of(null)
+    }
     return this.http
-      .get<MeResponse>(`${this.apiUrl}/auth/me`, { withCredentials: true })
+      .get<MeResponse>(`${this.apiUrl}/auth/me`)
       .pipe(
         map((res) => ({ userId: res.userId, email: res.email })),
         tap((user) => this.userSignal.set(user)),
         catchError(() => {
+          this.clearToken()
           this.userSignal.set(null)
-          return of(null as unknown as User)
+          return of(null)
         })
       )
   }

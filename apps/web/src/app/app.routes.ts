@@ -20,6 +20,10 @@ export const routes: Routes = [
         loadComponent: () => import('./import/import.component').then((m) => m.ImportComponent),
       },
       {
+        path: 'library',
+        loadComponent: () => import('./library/library.component').then((m) => m.LibraryComponent),
+      },
+      {
         path: 'library/:id',
         loadComponent: () => import('./library/library.component').then((m) => m.LibraryComponent),
       },

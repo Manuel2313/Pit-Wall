@@ -25,21 +25,21 @@ export class SetupTag {
   setupId: string
 
   @ManyToOne(() => Setup, (setup) => setup.setupTags, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'setupId' })
+  @JoinColumn()
   setup: Setup
 
   @Column({ type: 'uuid' })
   tagId: string
 
   @ManyToOne(() => Tag, (tag) => tag.setupTags, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'tagId' })
+  @JoinColumn()
   tag: Tag
 
   @Column({ type: 'uuid' })
   userId: string
 
   @ManyToOne(() => User, (user) => user.setupTags, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn()
   user: User
 
   @CreateDateColumn({ type: 'timestamptz' })

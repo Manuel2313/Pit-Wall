@@ -1,6 +1,9 @@
 # Local agent cache (skill index). Never commit.
 .atl/
 
+# Claude Code local project files. Never commit.
+.claude/
+
 # Dependencies, build output, coverage
 node_modules/
 dist/
@@ -12,3 +15,8 @@ coverage/
 # Test runner artifacts
 playwright-report/
 test-results/
+
+# Local boot/dev logs
+*_boot.log
+*_boot.err.log
+pg_start.log

@@ -29,6 +29,7 @@ export class VersionsService {
     const sorted = [...versions].sort((a, b) => b.versionNo - a.versionNo)
 
     return sorted.map((v) => ({
+      id: v.id,
       versionNo: v.versionNo,
       parentVersionNo: v.parentVersionNo,
       sha256: v.sha256,

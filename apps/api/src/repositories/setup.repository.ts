@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, FindOptionsWhere } from 'typeorm'
 import { Setup } from '../database/entities/setup.entity'
 import { randomUUID } from 'crypto'
@@ -15,7 +16,7 @@ export interface UpdateSetupInput {
 
 @Injectable()
 export class SetupRepository {
-  constructor(private readonly repo: Repository<Setup>) {}
+  constructor(@InjectRepository(Setup) private readonly repo: Repository<Setup>) {}
 
   async createForUser(userId: string, input: CreateSetupInput): Promise<Setup> {
     const setup = this.repo.create({

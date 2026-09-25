@@ -341,7 +341,7 @@ describe('Tenant-scoped repositories (A≠B isolation)', () => {
     })
 
     it('should reject updating feedback for another user', async () => {
-      const feedback = await feedbackRepository.createForUser(userA.id, versionA.id, {
+      const { feedback } = await feedbackRepository.createForUser(userA.id, versionA.id, {
         text: 'Original',
       })
 
@@ -353,7 +353,7 @@ describe('Tenant-scoped repositories (A≠B isolation)', () => {
     })
 
     it('should reject deleting feedback for another user', async () => {
-      const feedback = await feedbackRepository.createForUser(userA.id, versionA.id, {
+      const { feedback } = await feedbackRepository.createForUser(userA.id, versionA.id, {
         text: 'To delete',
       })
 
@@ -361,7 +361,7 @@ describe('Tenant-scoped repositories (A≠B isolation)', () => {
       await expect(feedbackRepository.deleteForUser(feedback.id, userA.id)).resolves.toBe(true)
 
       // Recreate for user B test
-      const feedback2 = await feedbackRepository.createForUser(userA.id, versionA.id, {
+      const { feedback: feedback2 } = await feedbackRepository.createForUser(userA.id, versionA.id, {
         text: 'To delete 2',
       })
 

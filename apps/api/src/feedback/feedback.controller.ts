@@ -13,12 +13,12 @@ interface RequestWithUser extends Request {
   user: { id: string; email: string }
 }
 
-@Controller('versions')
+@Controller()
 @UseGuards(AuthGuard)
 export class FeedbackController {
   constructor(private readonly feedbackService: FeedbackService) {}
 
-  @Post(':vid/feedback')
+  @Post('versions/:vid/feedback')
   async create(
     @Param('vid') versionId: string,
     @Body(new ZodValidationPipe(createFeedbackRequestSchema)) body: CreateFeedbackRequest,
@@ -27,7 +27,7 @@ export class FeedbackController {
     return this.feedbackService.create(versionId, req.user.id, body)
   }
 
-  @Get(':vid/feedback')
+  @Get('versions/:vid/feedback')
   async listByVersion(
     @Param('vid') versionId: string,
     @Request() req: RequestWithUser,

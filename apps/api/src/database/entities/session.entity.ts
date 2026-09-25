@@ -24,7 +24,7 @@ export class Session {
   userId: string
 
   @ManyToOne(() => User, (user) => user.sessions, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn()
   user: User
 
   @Column({ type: 'timestamptz' })

@@ -212,8 +212,8 @@ describe.sequential('ImportConfirmService', () => {
         track,
         category,
         notes,
-        sha256,
       },
+      sha256,
       htmlOverlay: overrides.htmlOverlay,
       manualOverlay: overrides.manualOverlay,
     }
@@ -229,7 +229,7 @@ describe.sequential('ImportConfirmService', () => {
 
       expect(result.setupId).toBeDefined()
       expect(result.versionNo).toBe(1)
-      expect(result.sha256).toBe(request.metadata.sha256)
+      expect(result.sha256).toBe(request.sha256)
 
       // Verify setup was created
       const setup = await setupRepository.findByIdForUser(result.setupId, userId)
@@ -244,7 +244,7 @@ describe.sequential('ImportConfirmService', () => {
       expect(versions).toHaveLength(1)
       expect(versions[0].versionNo).toBe(1)
       expect(versions[0].parentVersionNo).toBeNull()
-      expect(versions[0].sha256).toBe(request.metadata.sha256)
+      expect(versions[0].sha256).toBe(request.sha256)
       expect(versions[0].fileRef).toMatch(/^storage\/11111111-1111-1111-1111-111111111111\/[^/]+\/[^/]+\.sto$/)
       expect(versions[0].overlay).toBeNull()
 
@@ -367,7 +367,7 @@ describe.sequential('ImportConfirmService', () => {
       // Second confirm with different file (different sha256)
       const request2 = createImportConfirmRequest()
       const sha256_2 = createHash('sha256').update(fileBuffer2).digest('hex')
-      request2.metadata.sha256 = sha256_2
+      request2.sha256 = sha256_2
 
       const result2 = await confirmService.confirm(userId, request2, fileBuffer2)
       expect(result2.setupId).toBe(result1.setupId) // Same setup
@@ -423,7 +423,7 @@ describe.sequential('ImportConfirmService', () => {
       // Second confirm with Wet condition - different setup
       const fileBuffer2 = createValidStoBuffer(request2.metadata.notes)
       const sha256_2 = createHash('sha256').update(fileBuffer2).digest('hex')
-      request2.metadata.sha256 = sha256_2
+      request2.sha256 = sha256_2
 
       const result2 = await confirmService.confirm(userId, request2, fileBuffer2)
       expect(result2.setupId).not.toBe(result1.setupId) // Different setup

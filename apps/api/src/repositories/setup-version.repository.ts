@@ -1,21 +1,23 @@
 import { Injectable } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { SetupVersion } from '../database/entities/setup-version.entity'
 import { SetupRepository } from './setup.repository'
 import { randomUUID } from 'crypto'
+import type { CarSetupOverlay } from '@pit-wall/api-contracts'
 
 export interface CreateVersionInput {
   versionNo: number
   parentVersionNo: number | null
   sha256: string
-  overlay?: Record<string, Record<string, string>> | null
+  overlay?: CarSetupOverlay | null
   fileRef: string
 }
 
 @Injectable()
 export class SetupVersionRepository {
   constructor(
-    private readonly repo: Repository<SetupVersion>,
+    @InjectRepository(SetupVersion) private readonly repo: Repository<SetupVersion>,
     private readonly setupRepository: SetupRepository,
   ) {}
 
@@ -45,7 +47,7 @@ export class SetupVersionRepository {
     parentVersionNo: number | null,
     sha256: string,
     fileRef: string,
-    overlay: Record<string, Record<string, string>> | null,
+    overlay: CarSetupOverlay | null,
   ): Promise<SetupVersion> {
     return this.createForSetup(setupId, userId, {
       versionNo,

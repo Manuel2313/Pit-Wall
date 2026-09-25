@@ -338,8 +338,8 @@ describe('Import Confirm API (integration)', () => {
         track: 'Spa-Francorchamps',
         category: 'GT3',
         notes: notesText,
-        sha256,
       },
+      sha256,
     }
 
     it('should create Setup + Version 1 + store .sto file and return { setupId, versionNo, sha256 }', async () => {
@@ -508,10 +508,7 @@ describe('Import Confirm API (integration)', () => {
       const sha256_2 = createHash('sha256').update(fileBuffer2).digest('hex')
       const request2 = {
         ...baseRequest,
-        metadata: {
-          ...baseRequest.metadata,
-          sha256: sha256_2,
-        },
+        sha256: sha256_2,
       }
 
       const response2 = await request(app.getHttpServer())
@@ -586,10 +583,7 @@ describe('Import Confirm API (integration)', () => {
       const sha256_2 = createHash('sha256').update(fileBuffer2).digest('hex')
       const request2WithSha = {
         ...request2,
-        metadata: {
-          ...request2.metadata,
-          sha256: sha256_2,
-        },
+        sha256: sha256_2,
       }
 
       const response2 = await request(app.getHttpServer())

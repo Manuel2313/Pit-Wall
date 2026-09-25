@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common'
 import { DataSource } from 'typeorm'
-import { healthResponseSchema } from '@pit-wall/api-contracts'
+import type { HealthResponse } from '@pit-wall/api-contracts'
 
 @Injectable()
 export class HealthService {
   constructor(private readonly dataSource: DataSource) {}
 
-  async check(): Promise<typeof healthResponseSchema._type> {
+  async check(): Promise<HealthResponse> {
     let db = false
     try {
       if (this.dataSource.isInitialized) {

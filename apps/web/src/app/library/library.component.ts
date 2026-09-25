@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common'
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'
 import { Router, ActivatedRoute } from '@angular/router'
 import { LibraryService } from './library.service'
+import { AuthService } from '../auth/auth.service'
 import type {
   SetupListItem,
   SetupDetail,
@@ -199,7 +200,7 @@ interface DiffResult {
             <div class="flex items-center gap-2">
               @if (selectedVersion() && selectedVersion()!.hasOverlay) {
                 <button
-                  (click)="exportVersion(selectedVersion()!.versionNo)"
+                  (click)="exportVersion(selectedVersion()!)"
                   [disabled]="exportingVersion() === selectedVersion()!.versionNo"
                   class="px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
                 >
@@ -226,7 +227,7 @@ interface DiffResult {
               </div>
             } @else {
               <div class="space-y-3">
-                @for (version of versions(); track version.versionNo) {
+                @for (version of versions(); track version.id) {
                   <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div class="flex items-center gap-4">
                       <div class="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
@@ -252,19 +253,19 @@ interface DiffResult {
                     <div class="flex items-center gap-2 sm:ml-auto">
                       <button
                         (click)="selectForDiff(version, 'from')"
-                        [class.bg-indigo-100]="diffFromVersion() === version.versionNo"
-                        [class.text-indigo-700]="diffFromVersion() === version.versionNo"
+                        [class.bg-indigo-100]="diffFromVersionNo() === version.versionNo"
+                        [class.text-indigo-700]="diffFromVersionNo() === version.versionNo"
                         class="px-3 py-1.5 border rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                       >
-                        {{ diffFromVersion() === version.versionNo ? '✓ From' : 'Diff from' }}
+                        {{ diffFromVersionNo() === version.versionNo ? '✓ From' : 'Diff from' }}
                       </button>
                       <button
                         (click)="selectForDiff(version, 'to')"
-                        [class.bg-indigo-100]="diffToVersion() === version.versionNo"
-                        [class.text-indigo-700]="diffToVersion() === version.versionNo"
+                        [class.bg-indigo-100]="diffToVersionNo() === version.versionNo"
+                        [class.text-indigo-700]="diffToVersionNo() === version.versionNo"
                         class="px-3 py-1.5 border rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                       >
-                        {{ diffToVersion() === version.versionNo ? '✓ To' : 'Diff to' }}
+                        {{ diffToVersionNo() === version.versionNo ? '✓ To' : 'Diff to' }}
                       </button>
                       @if (diffFromVersion() && diffToVersion() && diffFromVersion() !== diffToVersion()) {
                         <button
@@ -293,12 +294,12 @@ interface DiffResult {
               </button>
             </div>
 
-              @for (version of versions(); track version.versionNo) {
+              @for (version of versions(); track version.id) {
                 <div class="mb-6">
                   <div class="flex items-center justify-between mb-3">
                     <h4 class="font-medium text-gray-900">Version {{ version.versionNo }} Feedback</h4>
                     <button
-                      (click)="loadFeedbackForVersion(version.versionNo)"
+                      (click)="loadFeedbackForVersion(version)"
                       [disabled]="isFeedbackLoading(version.versionNo)"
                       class="text-sm text-indigo-600 hover:text-indigo-800"
                     >
@@ -311,9 +312,9 @@ interface DiffResult {
                     </button>
                   </div>
 
-                  @if (feedbackList().length > 0) {
+                  @if (feedbackForVersion(version.id).length > 0) {
                     <div class="space-y-3">
-                      @for (feedback of feedbackList(); track feedback.id) {
+                      @for (feedback of feedbackForVersion(version.id); track feedback.id) {
                         <div class="border border-gray-200 rounded-lg p-4">
                           <div class="flex items-start justify-between gap-4">
                             <div class="flex-1 min-w-0">
@@ -385,7 +386,7 @@ interface DiffResult {
                   <!-- Add Feedback Form -->
                   <div class="mt-4 p-4 bg-gray-50 rounded-lg">
                     <h5 class="font-medium text-gray-900 mb-3">Add Feedback</h5>
-                    <form [formGroup]="editFeedbackForm" (ngSubmit)="submitFeedback(version.versionNo)" class="space-y-3">
+                    <form [formGroup]="addFormFor(version.id)" (ngSubmit)="submitFeedback(version)" class="space-y-3">
                       <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Feedback text <span class="text-red-500">*</span></label>
                         <textarea
@@ -394,7 +395,7 @@ interface DiffResult {
                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                           placeholder="Enter your feedback for this version..."
                         ></textarea>
-                        @if (editFeedbackForm.get('text')?.invalid && editFeedbackForm.get('text')?.touched) {
+                        @if (addFormFor(version.id).get('text')?.invalid && addFormFor(version.id).get('text')?.touched) {
                           <p class="mt-1 text-sm text-red-600">Feedback text is required</p>
                         }
                       </div>
@@ -409,7 +410,7 @@ interface DiffResult {
                       </div>
                       <button
                         type="submit"
-                        [disabled]="editFeedbackForm.invalid || submittingFeedback() === version.versionNo"
+                        [disabled]="addFormFor(version.id).invalid || submittingFeedback() === version.versionNo"
                         class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         @if (submittingFeedback() === version.versionNo) {
@@ -502,7 +503,7 @@ interface DiffResult {
                 <span class="hidden sm:inline">Back to Versions</span>
               </button>
               <div>
-                <h2 class="text-xl font-bold text-gray-900">Diff: v{{ diffFromVersion() }} → v{{ diffToVersion() }}</h2>
+                <h2 class="text-xl font-bold text-gray-900">Diff: v{{ diffFromVersionNo() }} → v{{ diffToVersionNo() }}</h2>
                 <p class="text-sm text-gray-600">{{ selectedSetup()?.car }} — {{ selectedSetup()?.track }}</p>
               </div>
             </div>
@@ -528,8 +529,8 @@ interface DiffResult {
                       <thead class="bg-gray-50">
                         <tr>
                           <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Field</th>
-                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Old Value (v{{ diffFromVersion() }})</th>
-                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">New Value (v{{ diffToVersion() }})</th>
+                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Old Value (v{{ diffFromVersionNo() }})</th>
+                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">New Value (v{{ diffToVersionNo() }})</th>
                         </tr>
                       </thead>
                       <tbody class="bg-white divide-y divide-gray-200">
@@ -573,11 +574,11 @@ interface DiffResult {
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Old Bytes (v{{ diffFromVersion() }})</label>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Old Bytes (v{{ diffFromVersionNo() }})</label>
                             <pre class="bg-red-50 p-3 rounded text-xs font-mono text-red-800 overflow-auto max-h-32">{{ region.oldBytes }}</pre>
                           </div>
                           <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1">New Bytes (v{{ diffToVersion() }})</label>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">New Bytes (v{{ diffToVersionNo() }})</label>
                             <pre class="bg-green-50 p-3 rounded text-xs font-mono text-green-800 overflow-auto max-h-32">{{ region.newBytes }}</pre>
                           </div>
                         </div>
@@ -595,6 +596,7 @@ interface DiffResult {
 })
 export class LibraryComponent implements OnInit {
   private libraryService = inject(LibraryService)
+  private authService = inject(AuthService)
   private router = inject(Router)
   private route = inject(ActivatedRoute)
   private fb = inject(FormBuilder)
@@ -611,15 +613,32 @@ export class LibraryComponent implements OnInit {
   exportingVersion = signal<number | null>(null)
 
   // Feedback state
-  feedbackList = signal<FeedbackEntry[]>([])
+  // feedbackByVersion: versionId → list; 'all' key stores the setup-wide flat list.
+  feedbackByVersion = signal<Record<string, FeedbackEntry[]>>({})
   loadingFeedback = signal<Record<number, boolean>>({})
   loadingAllFeedback = signal(false)
   submittingFeedback = signal<number | null>(null)
   editingFeedbackId = signal<string | null>(null)
+  // Separate forms so add-per-version and edit don't share state.
+  addFeedbackForms: Record<string, ReturnType<FormBuilder['group']>> = {}
   editFeedbackForm = this.fb.group({
     text: ['', Validators.required],
     lapDeltaMs: [null as number | null],
   })
+
+  feedbackForVersion(versionId: string): FeedbackEntry[] {
+    return this.feedbackByVersion()[versionId] ?? []
+  }
+
+  addFormFor(versionId: string) {
+    if (!this.addFeedbackForms[versionId]) {
+      this.addFeedbackForms[versionId] = this.fb.group({
+        text: ['', Validators.required],
+        lapDeltaMs: [null as number | null],
+      })
+    }
+    return this.addFeedbackForms[versionId]
+  }
 
   // Tags state
   tags = signal<string[]>([])
@@ -627,10 +646,22 @@ export class LibraryComponent implements OnInit {
   savingTags = signal(false)
   tagInput = signal('')
 
-  // Diff state
-  diffFromVersion = signal<number | null>(null)
-  diffToVersion = signal<number | null>(null)
+  // Diff state — stores UUIDs; version numbers are derived for display
+  diffFromVersion = signal<string | null>(null)
+  diffToVersion = signal<string | null>(null)
   diffResult = signal<DiffResult | null>(null)
+
+  diffFromVersionNo = computed(() => {
+    const id = this.diffFromVersion()
+    if (!id) return null
+    return this.versions().find(v => v.id === id)?.versionNo ?? null
+  })
+
+  diffToVersionNo = computed(() => {
+    const id = this.diffToVersion()
+    if (!id) return null
+    return this.versions().find(v => v.id === id)?.versionNo ?? null
+  })
 
   // Filter form
   filterForm = this.fb.group({
@@ -700,12 +731,11 @@ export class LibraryComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Check for setupId in route params (for deep linking)
+    // Deep-link: load detail if id in URL; otherwise the effect() in the
+    // constructor already triggers loadSetups on filterForm's initial value.
     const setupId = this.route.snapshot.paramMap.get('id')
     if (setupId) {
       this.loadSetupDetail(setupId)
-    } else {
-      this.loadSetups({})
     }
   }
 
@@ -781,28 +811,34 @@ export class LibraryComponent implements OnInit {
 
   selectForDiff(version: VersionSummary, which: 'from' | 'to'): void {
     if (which === 'from') {
-      this.diffFromVersion.set(this.diffFromVersion() === version.versionNo ? null : version.versionNo)
+      this.diffFromVersion.set(this.diffFromVersion() === version.id ? null : version.id)
     } else {
-      this.diffToVersion.set(this.diffToVersion() === version.versionNo ? null : version.versionNo)
+      this.diffToVersion.set(this.diffToVersion() === version.id ? null : version.id)
     }
   }
 
   showDiff(): void {
-    const from = this.diffFromVersion()
-    const to = this.diffToVersion()
-    if (!from || !to || from === to) return
+    const fromId = this.diffFromVersion()
+    const toId = this.diffToVersion()
+    const fromNo = this.diffFromVersionNo()
+    const toNo = this.diffToVersionNo()
+    if (!fromId || !toId || fromId === toId || fromNo == null || toNo == null) return
 
     this.loadingDiff.set(true)
     this.diffResult.set(null)
     this.viewMode.set('diff')
 
-    this.libraryService.getDiff({ fromVersion: String(from), toVersion: String(to) }).subscribe({
+    // Ensure fromVersion < toVersion (backend requires this)
+    const [firstId, secondId, firstNo, secondNo] = fromNo < toNo
+      ? [fromId, toId, fromNo, toNo]
+      : [toId, fromId, toNo, fromNo]
+
+    this.libraryService.getDiff({ fromVersion: firstId, toVersion: secondId }).subscribe({
       next: (result) => {
-        // Check if it's typed diff (has changedFields) or byte diff (has regions)
         if ('changedFields' in result) {
-          this.diffResult.set({ type: 'typed', data: result, fromVersion: from, toVersion: to })
+          this.diffResult.set({ type: 'typed', data: result, fromVersion: firstNo, toVersion: secondNo })
         } else {
-          this.diffResult.set({ type: 'byte', data: result, fromVersion: from, toVersion: to })
+          this.diffResult.set({ type: 'byte', data: result, fromVersion: firstNo, toVersion: secondNo })
         }
         this.loadingDiff.set(false)
       },
@@ -818,16 +854,16 @@ export class LibraryComponent implements OnInit {
     })
   }
 
-  exportVersion(versionNo: number): void {
+  exportVersion(version: VersionSummary): void {
     const setup = this.selectedSetup()
     if (!setup) return
 
-    this.exportingVersion.set(versionNo)
-    this.libraryService.exportVersion(String(versionNo)).subscribe({
+    this.exportingVersion.set(version.versionNo)
+    this.libraryService.exportVersion(version.id).subscribe({
       next: (response) => {
         this.exportingVersion.set(null)
         if (response.success) {
-          this.downloadStoFile(setup.id, versionNo)
+          this.downloadStoFile(setup.id, version)
         } else {
           this.error.set(response.error || 'Export failed')
         }
@@ -839,14 +875,17 @@ export class LibraryComponent implements OnInit {
     })
   }
 
-  private downloadStoFile(setupId: string, versionNo: number): void {
-    fetch(`/api/versions/${versionNo}/file`, { credentials: 'include' })
+  private downloadStoFile(setupId: string, version: VersionSummary): void {
+    fetch(`/api/versions/${version.id}/file`, {
+      credentials: 'include',
+      headers: this.authHeader(),
+    })
       .then(res => res.blob())
       .then(blob => {
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = `${setupId}-v${versionNo}.sto`
+        a.download = `${setupId}-v${version.versionNo}.sto`
         a.click()
         window.URL.revokeObjectURL(url)
       })
@@ -855,16 +894,21 @@ export class LibraryComponent implements OnInit {
       })
   }
 
+  private authHeader(): Record<string, string> {
+    const token = this.authService.getToken()
+    return token ? { Authorization: `Bearer ${token}` } : {}
+  }
+
   // Feedback methods
-  loadFeedbackForVersion(versionNo: number): void {
-    this.loadingFeedback.update(v => ({ ...v, [versionNo]: true }))
-    this.libraryService.listFeedbackByVersion(String(versionNo)).subscribe({
+  loadFeedbackForVersion(version: VersionSummary): void {
+    this.loadingFeedback.update(v => ({ ...v, [version.versionNo]: true }))
+    this.libraryService.listFeedbackByVersion(version.id).subscribe({
       next: (feedback) => {
-        this.feedbackList.set(feedback)
-        this.loadingFeedback.update(v => ({ ...v, [versionNo]: false }))
+        this.feedbackByVersion.update(map => ({ ...map, [version.id]: feedback }))
+        this.loadingFeedback.update(v => ({ ...v, [version.versionNo]: false }))
       },
       error: () => {
-        this.loadingFeedback.update(v => ({ ...v, [versionNo]: false }))
+        this.loadingFeedback.update(v => ({ ...v, [version.versionNo]: false }))
         this.error.set('Failed to load feedback.')
       },
     })
@@ -876,7 +920,12 @@ export class LibraryComponent implements OnInit {
     this.loadingAllFeedback.set(true)
     this.libraryService.listFeedbackBySetup(setup.id).subscribe({
       next: (feedback) => {
-        this.feedbackList.set(feedback)
+        // Bucket by versionNo → versionId mapping so per-version sections show their entries.
+        const byVersion: Record<string, FeedbackEntry[]> = {}
+        for (const version of this.versions()) {
+          byVersion[version.id] = feedback.filter(f => f.versionNo === version.versionNo)
+        }
+        this.feedbackByVersion.set(byVersion)
         this.loadingAllFeedback.set(false)
       },
       error: () => {
@@ -886,14 +935,18 @@ export class LibraryComponent implements OnInit {
     })
   }
 
-  submitFeedback(versionNo: number): void {
-    if (this.editFeedbackForm.invalid) return
-    const body = this.editFeedbackForm.getRawValue() as CreateFeedbackRequest
-    this.submittingFeedback.set(versionNo)
-    this.libraryService.createFeedback(String(versionNo), body).subscribe({
+  submitFeedback(version: VersionSummary): void {
+    const form = this.addFormFor(version.id)
+    if (form.invalid) return
+    const body = form.getRawValue() as CreateFeedbackRequest
+    this.submittingFeedback.set(version.versionNo)
+    this.libraryService.createFeedback(version.id, body).subscribe({
       next: (entry) => {
-        this.feedbackList.update(list => [entry, ...list])
-        this.editFeedbackForm.reset({ text: '', lapDeltaMs: null })
+        this.feedbackByVersion.update(map => ({
+          ...map,
+          [version.id]: [entry, ...(map[version.id] ?? [])],
+        }))
+        form.reset({ text: '', lapDeltaMs: null })
         this.submittingFeedback.set(null)
       },
       error: () => {
@@ -916,9 +969,13 @@ export class LibraryComponent implements OnInit {
     const body = this.editFeedbackForm.getRawValue() as Partial<CreateFeedbackRequest>
     this.libraryService.updateFeedback(feedbackId, body).subscribe({
       next: (updated) => {
-        this.feedbackList.update(list =>
-          list.map(f => f.id === feedbackId ? updated : f)
-        )
+        this.feedbackByVersion.update(map => {
+          const next: Record<string, FeedbackEntry[]> = {}
+          for (const key of Object.keys(map)) {
+            next[key] = (map[key] ?? []).map(f => f.id === feedbackId ? updated : f)
+          }
+          return next
+        })
         this.editingFeedbackId.set(null)
         this.editFeedbackForm.reset({ text: '', lapDeltaMs: null })
       },
@@ -935,7 +992,13 @@ export class LibraryComponent implements OnInit {
     if (!confirm('Delete this feedback?')) return
     this.libraryService.deleteFeedback(feedbackId).subscribe({
       next: () => {
-        this.feedbackList.update(list => list.filter(f => f.id !== feedbackId))
+        this.feedbackByVersion.update(map => {
+          const next: Record<string, FeedbackEntry[]> = {}
+          for (const key of Object.keys(map)) {
+            next[key] = (map[key] ?? []).filter(f => f.id !== feedbackId)
+          }
+          return next
+        })
       },
       error: () => this.error.set('Failed to delete feedback.'),
     })

@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common'
-import { Repository, LessThan } from 'typeorm'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository, LessThan, MoreThan } from 'typeorm'
 import { Session } from '../database/entities/session.entity'
 
 @Injectable()
 export class SessionRepository {
-  constructor(private readonly repo: Repository<Session>) {}
+  constructor(@InjectRepository(Session) private readonly repo: Repository<Session>) {}
 
   async create(userId: string, tokenHash: string, expiresAt: Date): Promise<Session> {
     const session = this.repo.create({ userId, tokenHash, expiresAt })
@@ -12,14 +13,10 @@ export class SessionRepository {
   }
 
   async findValidByTokenHash(tokenHash: string): Promise<Session | null> {
-    const now = new Date()
-    const session = await this.repo.findOne({
-      where: { tokenHash },
+    return this.repo.findOne({
+      where: { tokenHash, expiresAt: MoreThan(new Date()) },
       relations: ['user'],
     })
-    if (!session) return null
-    if (session.expiresAt < now) return null
-    return session
   }
 
   async deleteByTokenHash(tokenHash: string): Promise<boolean> {

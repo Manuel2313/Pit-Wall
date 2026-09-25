@@ -78,7 +78,7 @@ describe('FeedbackService', () => {
       const version = createMockVersion({ id: 'v1', versionNo: 1 })
       const feedbackEntry = createMockFeedbackEntry({ id: 'fb1', text: 'Good setup', lapDeltaMs: 100 })
 
-      feedbackRepository.createForUser.mockResolvedValue(feedbackEntry)
+      feedbackRepository.createForUser.mockResolvedValue({ feedback: feedbackEntry, version })
       versionRepository.findByIdForUser.mockResolvedValue(version)
 
       const result = await service.create('v1', 'user-1', { text: 'Good setup', lapDeltaMs: 100 })
@@ -100,7 +100,7 @@ describe('FeedbackService', () => {
       const version = createMockVersion({ id: 'v1', versionNo: 1 })
       const feedbackEntry = createMockFeedbackEntry({ id: 'fb1', text: 'Good setup', lapDeltaMs: null })
 
-      feedbackRepository.createForUser.mockResolvedValue(feedbackEntry)
+      feedbackRepository.createForUser.mockResolvedValue({ feedback: feedbackEntry, version })
       versionRepository.findByIdForUser.mockResolvedValue(version)
 
       const result = await service.create('v1', 'user-1', { text: 'Good setup' })
@@ -124,15 +124,6 @@ describe('FeedbackService', () => {
 
     it('should throw BadRequestException when text is whitespace only', async () => {
       await expect(service.create('v1', 'user-1', { text: '   ' })).rejects.toThrow('Feedback text is required')
-    })
-
-    it('should throw NotFoundException when version not found', async () => {
-      feedbackRepository.createForUser.mockResolvedValue(
-        createMockFeedbackEntry({ id: 'fb1', text: 'Test' }),
-      )
-      versionRepository.findByIdForUser.mockResolvedValue(null)
-
-      await expect(service.create('v1', 'user-1', { text: 'Test' })).rejects.toThrow('Version not found')
     })
 
     it('should enforce owner-only via repository (throws when version not owned)', async () => {

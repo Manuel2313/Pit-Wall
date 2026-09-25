@@ -7,6 +7,7 @@ import {
   Index,
 } from 'typeorm'
 import { Setup } from './setup.entity'
+import type { CarCategory } from '@pit-wall/api-contracts'
 
 @Entity('cars')
 @Index(['category'])
@@ -14,11 +15,11 @@ export class Car {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', unique: true })
   name: string
 
   @Column({ type: 'varchar' })
-  category: string
+  category: CarCategory
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date

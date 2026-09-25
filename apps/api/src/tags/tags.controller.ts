@@ -1,4 +1,4 @@
-import { Controller, Put, Delete, Get, Param, Body, Request, UseGuards, HttpCode, HttpStatus } from '@nestjs/common'
+import { Controller, Put, Delete, Get, Param, Body, Request, UseGuards, HttpCode, HttpStatus, NotFoundException } from '@nestjs/common'
 import { AuthGuard } from '../auth/auth.guard'
 import { TagsService } from './tags.service'
 import { ZodValidationPipe } from '../pipes/zod-validation.pipe'

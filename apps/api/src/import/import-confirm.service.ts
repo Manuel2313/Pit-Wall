@@ -25,7 +25,7 @@ export class ImportConfirmService {
   async confirm(userId: string, dto: ImportConfirmRequest, stoBuffer: Buffer): Promise<ImportConfirmResponse> {
     // 1. Verify sha256 matches
     const computedSha256 = createHash('sha256').update(stoBuffer).digest('hex')
-    if (computedSha256 !== dto.metadata.sha256) {
+    if (computedSha256 !== dto.sha256) {
       throw new BadRequestException('SHA-256 mismatch: uploaded file does not match preview')
     }
 
@@ -64,7 +64,7 @@ export class ImportConfirmService {
       userId,
       versionNo,
       parentVersionNo,
-      dto.metadata.sha256,
+      dto.sha256,
       storageKey,
       overlay,
     )
@@ -73,7 +73,7 @@ export class ImportConfirmService {
     return {
       setupId: setup.id,
       versionNo: version.versionNo,
-      sha256: dto.metadata.sha256,
+      sha256: dto.sha256,
     }
   }
 

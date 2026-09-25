@@ -43,7 +43,7 @@ export class LibraryService {
     const params = new HttpParams()
       .set('fromVersion', request.fromVersion)
       .set('toVersion', request.toVersion)
-    return this.http.get<TypedDiffResponse | ByteDiffResponse>(`${this.apiUrl}/diff`, { params, withCredentials: true })
+    return this.http.get<TypedDiffResponse | ByteDiffResponse>(`${this.apiUrl}/setups/diff`, { params, withCredentials: true })
   }
 
   exportVersion(versionId: string): Observable<ExportResponse> {

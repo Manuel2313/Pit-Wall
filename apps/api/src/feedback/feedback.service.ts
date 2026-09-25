@@ -15,12 +15,7 @@ export class FeedbackService {
       throw new BadRequestException('Feedback text is required')
     }
 
-    const feedback = await this.feedbackRepository.createForUser(userId, versionId, input)
-
-    const version = await this.versionRepository.findByIdForUser(versionId, userId)
-    if (!version) {
-      throw new NotFoundException('Version not found')
-    }
+    const { feedback, version } = await this.feedbackRepository.createForUser(userId, versionId, input)
 
     return {
       id: feedback.id,

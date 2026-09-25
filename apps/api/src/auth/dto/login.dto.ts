@@ -1,8 +1,5 @@
-import { z } from 'zod/v4'
+import { loginRequestSchema } from '@pit-wall/api-contracts'
 
-export const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-})
+export const loginSchema = loginRequestSchema
 
-export type LoginDto = z.infer<typeof loginSchema>
+export type LoginDto = typeof loginRequestSchema._output

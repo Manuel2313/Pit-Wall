@@ -176,7 +176,7 @@ type Step = 'upload' | 'preview' | 'manual-entry'
           <form [formGroup]="manualForm" class="space-y-6">
             <div formArrayName="categories">
               @for (category of categoriesArray.controls; track $index; let i = $index) {
-                <div class="border border-gray-200 rounded-lg p-4 space-y-4">
+                <div [formGroupName]="i" class="border border-gray-200 rounded-lg p-4 space-y-4">
                   <div class="flex items-center justify-between">
                     <label class="block text-sm font-medium text-gray-700">Category Name</label>
                     <button
@@ -190,7 +190,7 @@ type Step = 'upload' | 'preview' | 'manual-entry'
                   </div>
                   <input
                     type="text"
-                    [formControlName]="i"
+                    formControlName="name"
                     placeholder="e.g., Tires, Suspension, Aero"
                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   />
@@ -208,16 +208,16 @@ type Step = 'upload' | 'preview' | 'manual-entry'
                     </div>
                     <div formArrayName="params">
                       @for (param of getParamsArray(i).controls; track $index; let j = $index) {
-                        <div class="flex gap-2">
+                        <div [formGroupName]="j" class="flex gap-2">
                           <input
                             type="text"
-                            [formControlName]="j"
+                            formControlName="name"
                             placeholder="Parameter name (e.g., Pressure, Camber)"
                             class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                           />
                           <input
                             type="text"
-                            [formControlName]="j"
+                            formControlName="value"
                             placeholder="Value"
                             class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                           />
@@ -411,6 +411,12 @@ export class ImportComponent {
     const p = this.preview()
     if (!file || !p) return
 
+    let manualOverlay: CarSetupOverlay | undefined
+    if (this.step() === 'manual-entry') {
+      manualOverlay = this.buildManualOverlayFromForm()
+      this.manualOverlay.set(manualOverlay ?? null)
+    }
+
     this.isLoading.set(true)
     this.error.set(null)
 
@@ -421,8 +427,9 @@ export class ImportComponent {
         category: p.metadata.category,
         notes: p.metadata.notes,
       },
+      sha256: p.sha256,
       htmlOverlay: p.htmlOverlay,
-      manualOverlay: this.step() === 'manual-entry' ? this.manualOverlay() || undefined : undefined,
+      manualOverlay,
     }
 
     this.importService.confirm(file, dto, this.htmlFile() || undefined).subscribe({
@@ -450,6 +457,26 @@ export class ImportComponent {
     this.categoriesArray.clear()
     this.categoriesArray.push(this.createCategoryGroup())
     this.manualOverlay.set(null)
+  }
+
+  private buildManualOverlayFromForm(): CarSetupOverlay | undefined {
+    const categories: Record<string, Record<string, string>> = {}
+    for (const catCtrl of this.categoriesArray.controls) {
+      const catName = String(catCtrl.get('name')?.value ?? '').trim()
+      if (!catName) continue
+      const params = (catCtrl.get('params') as FormArray).controls
+      const bucket: Record<string, string> = {}
+      for (const paramCtrl of params) {
+        const name = String(paramCtrl.get('name')?.value ?? '').trim()
+        const value = String(paramCtrl.get('value')?.value ?? '').trim()
+        if (!name) continue
+        bucket[name] = value
+      }
+      if (Object.keys(bucket).length > 0) {
+        categories[catName] = bucket
+      }
+    }
+    return Object.keys(categories).length > 0 ? { categories } : undefined
   }
 
   private resetAll(): void {

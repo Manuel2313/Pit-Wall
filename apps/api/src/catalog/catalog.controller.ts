@@ -1,4 +1,5 @@
 import { Controller, Get } from '@nestjs/common'
+import type { z } from 'zod/v4'
 import { CatalogService } from './catalog.service'
 import { catalogCarsResponseSchema, catalogTracksResponseSchema } from '@pit-wall/api-contracts'
 

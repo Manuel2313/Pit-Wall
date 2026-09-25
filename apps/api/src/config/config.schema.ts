@@ -5,6 +5,7 @@ export const envSchema = z.object({
   JWT_SECRET: z.string().min(32),
   PORT: z.coerce.number().int().positive().default(3000),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  FRONTEND_URL: z.string().url().default('http://localhost:4200'),
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().email().optional(),
   STORAGE_PATH: z.string().default('./storage'),

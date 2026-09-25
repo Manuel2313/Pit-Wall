@@ -165,13 +165,13 @@ describe.sequential('AuthService', () => {
     })
 
     it('should verify argon2id hash and return session token', async () => {
-      const token = await authService.login('test@example.com', 'password123')
+      const { token } = await authService.login('test@example.com', 'password123')
 
       expect(token).toMatch(/^[a-f0-9]{64}$/)
     })
 
     it('should create session with hashed token', async () => {
-      const token = await authService.login('test@example.com', 'password123')
+      const { token } = await authService.login('test@example.com', 'password123')
       const tokenHash = require('crypto').createHash('sha256').update(token).digest('hex')
 
       const session = await sessionRepository.findValidByTokenHash(tokenHash)
@@ -205,7 +205,7 @@ describe.sequential('AuthService', () => {
   describe('logout', () => {
     it('should delete session by token hash', async () => {
       await authService.register('test@example.com', 'password123')
-      const token = await authService.login('test@example.com', 'password123')
+      const { token } = await authService.login('test@example.com', 'password123')
 
       await authService.logout(token)
 
@@ -218,7 +218,7 @@ describe.sequential('AuthService', () => {
   describe('validateSession', () => {
     it('should return user for valid token', async () => {
       await authService.register('test@example.com', 'password123')
-      const token = await authService.login('test@example.com', 'password123')
+      const { token } = await authService.login('test@example.com', 'password123')
 
       const user = await authService.validateSession(token)
 
@@ -271,7 +271,7 @@ describe.sequential('AuthService', () => {
 
     it('should verify token, update password, mark token used, and revoke all sessions', async () => {
       // First login to create a session
-      const sessionToken = await authService.login('test@example.com', 'password123')
+      const { token: sessionToken } = await authService.login('test@example.com', 'password123')
       expect(sessionToken).toBeDefined()
 
       // Reset password
@@ -288,7 +288,7 @@ describe.sequential('AuthService', () => {
       expect(oldSession).toBeNull()
 
       // New password should work
-      const newToken = await authService.login('test@example.com', 'newpassword123')
+      const { token: newToken } = await authService.login('test@example.com', 'newpassword123')
       expect(newToken).toBeDefined()
     })
 

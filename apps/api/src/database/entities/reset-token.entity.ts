@@ -24,7 +24,7 @@ export class ResetToken {
   userId: string
 
   @ManyToOne(() => User, (user) => user.resetTokens, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn()
   user: User
 
   @Column({ type: 'timestamptz' })

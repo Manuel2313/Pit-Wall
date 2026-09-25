@@ -31,6 +31,8 @@ export const loginRequestSchema = z.object({
 /** POST /auth/login response */
 export const loginResponseSchema = z.object({
   sessionToken: z.string().min(1),
+  userId: z.string().min(1),
+  email: z.email(),
 })
 
 /** GET /auth/me response */
@@ -107,6 +109,7 @@ export const importPreviewResponseSchema = z.object({
 /** POST /setups confirm request */
 export const importConfirmRequestSchema = z.object({
   metadata: stoMetadataSchema,
+  sha256: sha256Schema,
   htmlOverlay: carSetupOverlaySchema.optional(),
   manualOverlay: carSetupOverlaySchema.optional(),
 })
@@ -144,6 +147,7 @@ export const setupDetailSchema = z.object({
   createdAt: z.iso.datetime(),
   versions: z.array(
     z.object({
+      id: z.string().uuid(),
       versionNo: z.int().positive(),
       parentVersionNo: z.int().positive().nullable(),
       sha256: sha256Schema,
@@ -155,6 +159,7 @@ export const setupDetailSchema = z.object({
 
 /** Version summary (for lists) */
 export const versionSummarySchema = z.object({
+  id: z.string().uuid(),
   versionNo: z.int().positive(),
   parentVersionNo: z.int().positive().nullable(),
   sha256: sha256Schema,

@@ -26,6 +26,7 @@ export class ImportService {
     }
     // Append the JSON body as a string
     formData.append('metadata', JSON.stringify(dto.metadata))
+    formData.append('sha256', dto.sha256)
     if (dto.htmlOverlay) {
       formData.append('htmlOverlay', JSON.stringify(dto.htmlOverlay))
     }

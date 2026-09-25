@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { FeedbackEntry } from '../database/entities/feedback-entry.entity'
+import { SetupVersion } from '../database/entities/setup-version.entity'
 import { SetupVersionRepository } from './setup-version.repository'
 import { randomUUID } from 'crypto'
 
@@ -17,12 +19,15 @@ export interface UpdateFeedbackInput {
 @Injectable()
 export class FeedbackRepository {
   constructor(
-    private readonly repo: Repository<FeedbackEntry>,
+    @InjectRepository(FeedbackEntry) private readonly repo: Repository<FeedbackEntry>,
     private readonly versionRepository: SetupVersionRepository,
   ) {}
 
-  async createForUser(userId: string, versionId: string, input: CreateFeedbackInput): Promise<FeedbackEntry> {
-    // Verify the version belongs to the user
+  async createForUser(
+    userId: string,
+    versionId: string,
+    input: CreateFeedbackInput,
+  ): Promise<{ feedback: FeedbackEntry; version: SetupVersion }> {
     const version = await this.versionRepository.findByIdForUser(versionId, userId)
     if (!version) {
       throw new Error('Version not found or access denied')
@@ -36,7 +41,8 @@ export class FeedbackRepository {
       text: input.text,
       lapDeltaMs: input.lapDeltaMs ?? null,
     })
-    return this.repo.save(feedback)
+    const saved = await this.repo.save(feedback)
+    return { feedback: saved, version }
   }
 
   async findByVersionForUser(versionId: string, userId: string): Promise<FeedbackEntry[]> {
