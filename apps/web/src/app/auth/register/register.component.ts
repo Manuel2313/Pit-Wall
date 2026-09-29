@@ -2,7 +2,7 @@ import { Component, signal, inject } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'
 import { Router, RouterLink } from '@angular/router'
-import { AuthService } from '../auth.service'
+import { AuthService, AccountCreatedError } from '../auth.service'
 
 @Component({
   selector: 'app-register',
@@ -158,7 +158,9 @@ export class RegisterComponent {
       },
       error: (err) => {
         this.isLoading.set(false)
-        if (err.status === 409) {
+        if (err instanceof AccountCreatedError) {
+          this.error.set('Account created. Please sign in manually.')
+        } else if (err.status === 409) {
           this.error.set('An account with this email already exists.')
         } else {
           this.error.set(err.error?.message || 'Registration failed. Please try again.')

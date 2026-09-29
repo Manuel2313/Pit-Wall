@@ -13,7 +13,9 @@ test.describe('Authentication', () => {
   })
 
   test('should show validation errors for empty fields', async ({ page }) => {
-    await page.click('button[type="submit"]')
+    await page.click('input[name="email"]')
+    await page.keyboard.press('Tab')
+    await page.keyboard.press('Tab')
     await expect(page.locator('text=Please enter a valid email address')).toBeVisible()
     await expect(page.locator('text=Password is required')).toBeVisible()
   })
@@ -22,7 +24,7 @@ test.describe('Authentication', () => {
     await page.fill('input[name="email"]', 'wrong@example.com')
     await page.fill('input[name="password"]', 'wrongpassword')
     await page.click('button[type="submit"]')
-    await expect(page.locator('.bg-red-50')).toContainText('Invalid email or password')
+    await expect(page.locator('.bg-red-50')).toContainText('Invalid credentials')
   })
 
   test('should navigate to register page', async ({ page }) => {
@@ -79,7 +81,10 @@ test.describe('Authentication', () => {
 
   test('should show validation errors on register form', async ({ page }) => {
     await page.goto('/register')
-    await page.click('button[type="submit"]')
+    await page.click('input[name="email"]')
+    await page.keyboard.press('Tab')
+    await page.keyboard.press('Tab')
+    await page.keyboard.press('Tab')
     await expect(page.locator('text=Please enter a valid email address')).toBeVisible()
     await expect(page.locator('text=Password must be at least 8 characters')).toBeVisible()
     await expect(page.locator('text=Please confirm your password')).toBeVisible()
@@ -90,7 +95,7 @@ test.describe('Authentication', () => {
     await page.fill('input[name="email"]', 'test@example.com')
     await page.fill('input[name="password"]', 'password123')
     await page.fill('input[name="confirmPassword"]', 'different')
-    await page.click('button[type="submit"]')
+    await page.keyboard.press('Tab')
     await expect(page.locator('text=Passwords do not match')).toBeVisible()
   })
 

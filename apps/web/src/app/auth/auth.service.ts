@@ -1,11 +1,20 @@
 import { HttpClient } from '@angular/common/http'
 import { Injectable, signal, computed } from '@angular/core'
-import { Observable, tap, catchError, of, map } from 'rxjs'
-import type { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse, MeResponse } from '@pit-wall/api-contracts'
+import { Observable, tap, catchError, of, map, switchMap, throwError } from 'rxjs'
+import type { LoginRequest, LoginResponse, RegisterRequest, MeResponse } from '@pit-wall/api-contracts'
 
 export interface User {
   userId: string
   email: string
+}
+
+/** Emitted when registration succeeded but the automatic login attempt failed.
+ *  Callers must redirect to the login page — retrying register() will conflict. */
+export class AccountCreatedError extends Error {
+  constructor(readonly cause: unknown) {
+    super('Account created. Please log in manually.')
+    this.name = 'AccountCreatedError'
+  }
 }
 
 const TOKEN_STORAGE_KEY = 'pit-wall.sessionToken'
@@ -53,12 +62,21 @@ export class AuthService {
       )
   }
 
+  /** Registers a new account then immediately logs in to establish a session.
+   *  Two sequential HTTP requests are issued: POST /auth/register then POST /auth/login.
+   *  If the login step fails after successful registration, emits {@link AccountCreatedError}
+   *  (with the original error as `cause`) — callers should redirect to login, not retry register. */
   register(email: string, password: string): Observable<User> {
     return this.http
-      .post<RegisterResponse>(`${this.apiUrl}/auth/register`, { email, password } satisfies RegisterRequest)
+      .post(`${this.apiUrl}/auth/register`, { email, password } satisfies RegisterRequest)
       .pipe(
-        map((res) => ({ userId: res.userId, email: res.email })),
-        tap((user) => this.userSignal.set(user))
+        switchMap(() =>
+          this.login(email, password).pipe(
+            catchError((err: unknown) =>
+              throwError(() => new AccountCreatedError(err))
+            )
+          )
+        )
       )
   }
 
