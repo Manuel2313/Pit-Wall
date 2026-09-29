@@ -90,12 +90,15 @@ export class AuthService {
   }
 
   restoreSession(): Observable<User | null> {
-    if (!this.getToken()) {
+    const token = this.getToken()
+    if (!token) {
       this.userSignal.set(null)
       return of(null)
     }
     return this.http
-      .get<MeResponse>(`${this.apiUrl}/auth/me`)
+      .get<MeResponse>(`${this.apiUrl}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       .pipe(
         map((res) => ({ userId: res.userId, email: res.email })),
         tap((user) => this.userSignal.set(user)),
