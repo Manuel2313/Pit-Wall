@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { RouterLink, RouterOutlet } from '@angular/router'
+import { Router, RouterLink, RouterOutlet } from '@angular/router'
 import { AuthService } from '../auth/auth.service'
 
 @Component({
@@ -39,8 +39,9 @@ import { AuthService } from '../auth/auth.service'
 })
 export class LayoutComponent {
   auth = inject(AuthService)
+  router = inject(Router)
 
   logout(): void {
-    this.auth.logout().subscribe()
+    this.auth.logout().subscribe(() => this.router.navigate(['/login']))
   }
 }

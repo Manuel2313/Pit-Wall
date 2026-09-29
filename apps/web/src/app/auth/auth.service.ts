@@ -81,12 +81,17 @@ export class AuthService {
   }
 
   logout(): Observable<void> {
+    const token = this.getToken()
+    this.clearToken()
+    this.userSignal.set(null)
+    if (!token) {
+      return of(undefined as void)
+    }
     return this.http
-      .post<void>(`${this.apiUrl}/auth/logout`, {})
-      .pipe(tap(() => {
-        this.clearToken()
-        this.userSignal.set(null)
-      }))
+      .post<void>(`${this.apiUrl}/auth/logout`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .pipe(catchError(() => of(undefined as void)))
   }
 
   restoreSession(): Observable<User | null> {
