@@ -5,6 +5,7 @@ export class LibraryPage {
 
   async goto(): Promise<void> {
     await this.page.goto('/library')
+    await this.page.locator('h1:has-text("Setup Library")').waitFor()
   }
 
   async setupRowCount(): Promise<number> {

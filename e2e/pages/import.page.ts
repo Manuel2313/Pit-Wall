@@ -5,6 +5,7 @@ export class ImportPage {
 
   async goto(): Promise<void> {
     await this.page.goto('/import')
+    await this.page.locator('h1:has-text("Import Setup")').waitFor()
   }
 
   async uploadSto(filePath: string): Promise<void> {
