@@ -9,10 +9,12 @@ export class ImportPage {
 
   async uploadSto(filePath: string): Promise<void> {
     await this.page.locator('input[accept=".sto"]').setInputFiles(filePath)
+    await this.page.getByText('Selected:').first().waitFor()
   }
 
   async uploadHtml(filePath: string): Promise<void> {
     await this.page.locator('input[accept=".htm,.html"]').setInputFiles(filePath)
+    await this.page.getByText('Selected:').nth(1).waitFor()
   }
 
   async analyzeSetup(): Promise<void> {

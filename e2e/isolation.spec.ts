@@ -20,9 +20,9 @@ async function registerUser(page: import('@playwright/test').Page, email: string
 
 test.describe('User data isolation', () => {
   test('user A setups are not visible to user B', async ({ page }) => {
-    const ts = Date.now()
-    const emailA = `userA${ts}@example.com`
-    const emailB = `userB${ts}@example.com`
+    const uid = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+    const emailA = `userA-${uid}@example.com`
+    const emailB = `userB-${uid}@example.com`
 
     await registerUser(page, emailA)
 

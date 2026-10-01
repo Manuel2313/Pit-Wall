@@ -13,7 +13,7 @@ const htmlFixture = join(__dirname, '..', 'IRacingSetups', 'fixed_ferrariGT3296.
 test.describe('Setup import and library flow', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/register')
-    const email = `test${Date.now()}@example.com`
+    const email = `test-${Date.now()}-${Math.random().toString(36).slice(2, 7)}@example.com`
     await page.fill('input[name="email"]', email)
     await page.fill('input[name="password"]', 'password123')
     await page.fill('input[name="confirmPassword"]', 'password123')
