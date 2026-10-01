@@ -19,6 +19,7 @@ export const createDataSourceOptions = (configService: ConfigService): DataSourc
   type: 'postgres',
   url: configService.get('DATABASE_URL'),
   synchronize: false,
+  migrationsRun: true,
   logging: configService.get('NODE_ENV') === 'development',
   namingStrategy: new SnakeNamingStrategy(),
   // Explicit class lists (not globs): under the webpack bundle, __dirname-based
