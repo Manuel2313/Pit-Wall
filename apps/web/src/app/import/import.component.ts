@@ -127,6 +127,12 @@ type Step = 'upload' | 'preview' | 'manual-entry'
                 </div>
               }
 
+              @if (error()) {
+                <div class="rounded-md bg-red-50 p-4 text-sm text-red-600" role="alert">
+                  {{ error() }}
+                </div>
+              }
+
               <div class="flex justify-end space-x-3">
                 <button
                   type="button"
