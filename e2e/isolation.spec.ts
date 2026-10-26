@@ -8,6 +8,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 const stoFixture = join(__dirname, '..', 'IRacingSetups', 'lemans_FerrariGT3_Claude_V1.sto')
+const htmlFixture = join(__dirname, '..', 'IRacingSetups', 'fixed_ferrariGT3296.htm')
 
 async function registerUser(page: import('@playwright/test').Page, email: string): Promise<void> {
   await page.goto('/register')
@@ -29,6 +30,7 @@ test.describe('User data isolation', () => {
     const importPage = new ImportPage(page)
     await importPage.goto()
     await importPage.uploadSto(stoFixture)
+    await importPage.uploadHtml(htmlFixture)
     await importPage.analyzeSetup()
     await importPage.confirmSave()
 

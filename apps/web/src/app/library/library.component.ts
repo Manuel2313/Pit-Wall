@@ -859,28 +859,17 @@ export class LibraryComponent implements OnInit {
     if (!setup) return
 
     this.exportingVersion.set(version.versionNo)
-    this.libraryService.exportVersion(version.id).subscribe({
-      next: (response) => {
-        this.exportingVersion.set(null)
-        if (response.success) {
-          this.downloadStoFile(setup.id, version)
-        } else {
-          this.error.set(response.error || 'Export failed')
-        }
-      },
-      error: () => {
-        this.exportingVersion.set(null)
-        this.error.set('Failed to export setup.')
-      },
-    })
+    this.downloadStoFile(setup.id, version)
   }
 
   private downloadStoFile(setupId: string, version: VersionSummary): void {
     fetch(`/api/versions/${version.id}/file`, {
-      credentials: 'include',
       headers: this.authHeader(),
     })
-      .then(res => res.blob())
+      .then(res => {
+        if (!res.ok) throw new Error(`Export failed: ${res.status}`)
+        return res.blob()
+      })
       .then(blob => {
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
@@ -888,9 +877,11 @@ export class LibraryComponent implements OnInit {
         a.download = `${setupId}-v${version.versionNo}.sto`
         a.click()
         window.URL.revokeObjectURL(url)
+        this.exportingVersion.set(null)
       })
       .catch(() => {
-        this.error.set('Failed to download file.')
+        this.exportingVersion.set(null)
+        this.error.set('Failed to export setup.')
       })
   }
 
