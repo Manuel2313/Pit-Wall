@@ -1,13 +1,19 @@
 import { HttpClient } from '@angular/common/http'
-import { Injectable } from '@angular/core'
+import { Injectable, inject } from '@angular/core'
 import { Observable } from 'rxjs'
 import type { ImportPreviewResponse, ImportConfirmRequest, ImportConfirmResponse } from '@pit-wall/api-contracts'
+import { AuthService } from '../auth/auth.service'
 
 @Injectable({ providedIn: 'root' })
 export class ImportService {
   private readonly apiUrl = '/api'
+  private readonly http = inject(HttpClient)
+  private readonly auth = inject(AuthService)
 
-  constructor(private http: HttpClient) {}
+  private authHeaders(): { Authorization: string } | Record<string, never> {
+    const token = this.auth.getToken()
+    return token ? { Authorization: `Bearer ${token}` } : {}
+  }
 
   preview(stoFile: File, htmlFile?: File): Observable<ImportPreviewResponse> {
     const formData = new FormData()
@@ -15,7 +21,9 @@ export class ImportService {
     if (htmlFile) {
       formData.append('htmlFile', htmlFile)
     }
-    return this.http.post<ImportPreviewResponse>(`${this.apiUrl}/setups`, formData, { withCredentials: true })
+    return this.http.post<ImportPreviewResponse>(`${this.apiUrl}/setups`, formData, {
+      headers: this.authHeaders(),
+    })
   }
 
   confirm(stoFile: File, dto: ImportConfirmRequest, htmlFile?: File): Observable<ImportConfirmResponse> {
@@ -24,7 +32,6 @@ export class ImportService {
     if (htmlFile) {
       formData.append('htmlFile', htmlFile)
     }
-    // Append the JSON body as a string
     formData.append('metadata', JSON.stringify(dto.metadata))
     formData.append('sha256', dto.sha256)
     if (dto.htmlOverlay) {
@@ -33,6 +40,8 @@ export class ImportService {
     if (dto.manualOverlay) {
       formData.append('manualOverlay', JSON.stringify(dto.manualOverlay))
     }
-    return this.http.post<ImportConfirmResponse>(`${this.apiUrl}/setups/confirm`, formData, { withCredentials: true })
+    return this.http.post<ImportConfirmResponse>(`${this.apiUrl}/setups/confirm`, formData, {
+      headers: this.authHeaders(),
+    })
   }
 }
