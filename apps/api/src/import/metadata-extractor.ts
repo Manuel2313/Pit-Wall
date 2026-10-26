@@ -1,7 +1,11 @@
 import { Car } from '../database/entities/car.entity'
 import type { StoMetadata } from '@pit-wall/api-contracts'
 
-export function extractMetadata(notesText: string, catalogCars: Car[]): StoMetadata {
+const HTML_CAR_MARKERS: Array<{ pattern: RegExp; name: string }> = [
+  { pattern: /ferrari296gt3/i, name: 'Ferrari 296 GT3' },
+]
+
+export function extractMetadata(notesText: string, catalogCars: Car[], htmlContent?: string): StoMetadata {
   const normalizedNotes = notesText.toLowerCase()
 
   // Find matching car from catalog (case-insensitive partial match)
@@ -10,6 +14,16 @@ export function extractMetadata(notesText: string, catalogCars: Car[]): StoMetad
     if (normalizedNotes.includes(car.name.toLowerCase())) {
       matchedCar = car
       break
+    }
+  }
+
+  // Fallback: detect car from HTML export markers when .sto notes have no match
+  if (!matchedCar && htmlContent) {
+    for (const marker of HTML_CAR_MARKERS) {
+      if (marker.pattern.test(htmlContent)) {
+        matchedCar = catalogCars.find(c => c.name === marker.name)
+        if (matchedCar) break
+      }
     }
   }
 

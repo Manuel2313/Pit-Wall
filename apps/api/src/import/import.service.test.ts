@@ -157,6 +157,19 @@ describe.sequential('ImportService', () => {
       expect(metadata.category).toBe('Unknown')
     })
 
+    it('should detect Ferrari 296 GT3 from HTML content when notes have no match', () => {
+      const cars = [
+        { id: '1', name: 'Ferrari 296 GT3', category: 'GT3' } as Car,
+      ]
+
+      const notesText = 'Generic setup notes without car name'
+      const htmlContent = '<html><body>ferrari296gt3 setup export</body></html>'
+      const metadata = extractMetadata(notesText, cars, htmlContent)
+
+      expect(metadata.car).toBe('Ferrari 296 GT3')
+      expect(metadata.category).toBe('GT3')
+    })
+
     it('should include full notes text in metadata', () => {
       const cars = [
         { id: '1', name: 'Ferrari 296 GT3', category: 'GT3' } as Car,

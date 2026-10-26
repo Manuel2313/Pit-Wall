@@ -31,14 +31,14 @@ export class ImportService {
       throw new BadRequestException('Corrupt or unsupported .sto file')
     }
 
-    // 4. Extract metadata from notes.text
+    // 4. Extract metadata from notes.text, with HTML content as fallback for car detection
     const catalogCars = await this.carRepository.find()
-    const metadata = extractMetadata(parseResult.document.notes.text, catalogCars)
+    const htmlContent = htmlFile?.buffer.toString('utf-8')
+    const metadata = extractMetadata(parseResult.document.notes.text, catalogCars, htmlContent)
 
     // 5. If htmlFile → parse with parseFerrariSetupHtml (returns overlay or null)
     let htmlOverlay: ImportPreviewResponse['htmlOverlay']
-    if (htmlFile) {
-      const htmlContent = htmlFile.buffer.toString('utf-8')
+    if (htmlContent) {
       const overlay = parseFerrariSetupHtml(htmlContent)
       if (overlay) {
         // Convert CarSetup to the expected CarSetupOverlay format
