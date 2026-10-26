@@ -20,3 +20,7 @@ test-results/
 *_boot.log
 *_boot.err.log
 pg_start.log
+
+# Local-only env overrides (never commit — may contain DISABLE_THROTTLE, local secrets, etc.)
+.env.local
+**/.env.local

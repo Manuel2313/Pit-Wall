@@ -11,6 +11,7 @@ export const envSchema = z.object({
   STORAGE_PATH: z.string().default('./storage'),
   SESSION_TTL_DAYS: z.coerce.number().int().positive().default(30),
   RESET_TOKEN_TTL_HOURS: z.coerce.number().int().positive().default(1),
+  DISABLE_THROTTLE: z.enum(['true', 'false']).default('false').transform((v) => v === 'true'),
 })
 
 export type EnvConfig = z.infer<typeof envSchema>

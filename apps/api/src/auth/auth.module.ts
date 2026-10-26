@@ -19,9 +19,13 @@ import { ConfigService } from '../config/config.service'
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Session, ResetToken]),
-    ThrottlerModule.forRoot([
-      { name: 'auth', ttl: 60_000, limit: 10 },
-    ]),
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        throttlers: [{ name: 'auth', ttl: 60_000, limit: 10 }],
+        skipIf: () => config.get('DISABLE_THROTTLE'),
+      }),
+    }),
   ],
   providers: [
     AuthService,
