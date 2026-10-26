@@ -62,14 +62,14 @@ Chain strategy: stacked-to-main
 
 ## Phase 4: Testing / Verification
 
-- [ ] 4.1 e2e/: Playwright config + page objects (dev API + Postgres).
-- [ ] 4.2 E2E: register→login→reload→import→preview→confirm→history→export SHA (§12.4).
-- [ ] 4.3 E2E: user A never sees B; full suite green.
+- [x] 4.1 e2e/: Playwright config + page objects (dev API + Postgres).
+- [x] 4.2 E2E: register→login→reload→import→preview→confirm→history→export SHA (§12.4).
+- [x] 4.3 E2E: user A never sees B; full suite green.
 
 ## Phase 5: Cleanup / Documentation
 
-- [ ] 5.1 README: stack, commands, env (Postgres/Resend), Node >=22.22.3.
-- [ ] 5.2 .gitignore artifacts; scaffold cleanup; final green.
+- [x] 5.1 README: stack, commands, env (Postgres/Resend), Node >=22.22.3.
+- [x] 5.2 .gitignore artifacts; scaffold cleanup; final green.
 
 ## Notes
 
